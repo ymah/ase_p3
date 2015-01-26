@@ -1,0 +1,34 @@
+Rendu TP Forest Dylan - Echallier Nicolas
+
+NB : nous avons re-rendu ces fichiers car nous pensions que nous avions des problèmes avec des fichiers un peut volumineux mais, en préparant la recette et en faisant la recette, nous nous sommes rendu compte que le problème venait tout simplement du fait que le volume que nous initialisions n'était pas assez grand !
+En recette, nous avons testé le programme avec un fichier de 18738  (qui doit donc utiliser les double indirection) et tout marche !
+
+Ci-dessous, nos notes originales.
+
+
+Rendu final des fichier de virtualisation d'un disque dur.
+
+Tout marche. Voila un exemple d'utilisation :
+- création du disque dur en lancant ./vm
+- création d'une nouvelle partition avec la commande "new" et les paramètres suiant:
+Veuillez donner le premier cylindre de la nouvelle partition
+0
+Veuillez donner le premier secteur de la nouvelle partition
+1
+Veuillez donner la taille de la partition (en nbr de secteur)
+100
+Veuillez donner le type de la partition
+0 pour primaire; 1 pour secondaire; 2 pour autre
+0
+
+- commande "quit" pour sauver les informations.
+- initialisation du volume avec la commande ./mknfs
+- copie du fichier mount.c dans le volume avec la commande ./if_nfile < mount.c (inoeud 1)
+- copie du fichier dans notre volume avec ./if_cfile 1
+- copie de ce fichier en dehors du disque dur virtuel ./if_pfile 10 > zz_foo.txt
+- vérification que les deux fichiers sont identique : diff zz_foo.txt mount.c
+- suppression de l'inoeud 1 avec ./if_dfile 1
+- création d'un nouvel inoeud avec ./if_nfile < mkvol.h. L'inoeud se créé dans le bloc 1.
+- nous avons aussi éssayé la commande suivant pour vérifier que l'on pouvait prendre des fichiers plus gros :
+- super.c (3204) marche
+- inode.c (5834) cela ne marche plus. Nous allons essayer de réparer cela pour la recette.
