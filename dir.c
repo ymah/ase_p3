@@ -45,14 +45,14 @@ new_entry(file_desc_t *fd)
 
     /* seek to begin of dir */
     seek2_ifile(fd, 0);
-    
+
     /* look after a null inumber in an entry */
     while (read_ifile (fd, &entry, sizeof(struct entry_s)) != READ_EOF) {
 	if (! entry.ent_inumber)
 	    return ientry;
 	ientry++;
     }
-    
+
     /* need to append an entry in the dir */
     return ientry;
 }
@@ -119,7 +119,7 @@ add_entry(unsigned int idir, unsigned int inumber, const char *basename)
     /* built the entry */
     entry.ent_inumber = inumber;
     strncpy(entry.ent_basename, basename, ENTRYMAXLENGTH);
-    entry.ent_basename[ENTRYMAXLENGTH] = 0;
+    entry.ent_basename[ENTRYMAXLENGTH] = -1;
 
     /* seek to the right position */
     seek2_ifile(fd, ientry * sizeof(struct entry_s));

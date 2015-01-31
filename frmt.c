@@ -17,7 +17,7 @@ main() {
     fprintf(stderr, "Error in hardware initialization\n");
     exit(EXIT_FAILURE);
   }
-
+  sem_init(&semaphore_disque,0,1);
   /* Interreupt handlers */
   for(i=0; i<16; i++)
     IRQVECTOR[i] = empty_it;

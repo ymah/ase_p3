@@ -1,6 +1,6 @@
 #include "vol.h"
 #include "tools.h"
-int debug = 1;
+int debug = 0;
 
 int sector_of_bloc(int vol, int b) {
   return (mbr.mbr_vol[vol].vol_first_sector + b) % MAX_SECTOR;

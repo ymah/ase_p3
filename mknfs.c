@@ -23,6 +23,7 @@ main(int argc, char *argv[]) {
     
   if(DEBUG)
     printDebug(FNNAME, "init master");
+  sem_init(&semaphore_disque,0,1);
   init_master();
   if(DEBUG)
     printDebug(FNNAME, "load mbr");

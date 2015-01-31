@@ -2,9 +2,9 @@
    $Id: dir.h 7085 2013-10-18 15:37:14Z marquet $
    ------------------------------------------------------------
 
-   Directory manipulation. 
+   Directory manipulation.
    Philippe Marquet, november 2002
-   
+
 */
 
 #ifndef _DIR_H_

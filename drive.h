@@ -1,11 +1,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <semaphore.h>
+
 #include "hardware.h"
 #include "hw.h"
 
 #ifndef _DRIVE
 #define _DRIVE
+
+
+sem_t semaphore_disque;
+
 
 void check_hda();
 void read_sector(unsigned int cylinder, unsigned int sector, unsigned char *buffer);

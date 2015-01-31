@@ -5,7 +5,7 @@
    File manipulation. 
    Basic version; manipulate files via their inode number. 
    Philippe Marquet, october 2009
-   
+
 */
 
 #ifndef _IFILE_H_

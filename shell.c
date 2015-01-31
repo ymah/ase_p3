@@ -7,7 +7,7 @@
 
    1- you must complete the NYI (not yet implemented) functions
    2- you may add commands (format, etc.)
-   
+
 */
 
 #include <stdio.h>
@@ -26,14 +26,14 @@
    ------------------------------------------------------------*/
 
 #define MAX_CMD_SIZE 64
-char *current_pwd = "/"
-
+unsigned int in_current_pwd;
+char *current_pwd = "/";
 /* used to store de arguments sent to each commands */
 
 struct _cmd {
-    char *name;
+  char *name;
   void (*fun) (unsigned int nb, char cmd[MAX_CMD_SIZE][MAX_CMD_SIZE]);
-    char *comment;
+  char *comment;
 };
 
 static void mkdir();
@@ -45,18 +45,20 @@ static void quit(unsigned int nb, char cmd[MAX_CMD_SIZE][MAX_CMD_SIZE]);
 static void none(unsigned int nb, char cmd[MAX_CMD_SIZE][MAX_CMD_SIZE]);
 static void cd(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]);
 static void pwd(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]);
+static void new_file(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]);
 
 
 static struct _cmd commands [] = {
-    {"mkdir", mkdir, 	"create a directory"},
-    {"ls", ls, 	"list directories"},
-    {"rm",rm,"remove entry"},
-    {"cd",cd,"cd"},
-    {"pwd",pwd,"pwd"},
-    {"dmpb", dmpb,	"dump sector b"},
-    {"exit", xit,	"exit (without saving)"},
-    {"quit", quit,	"save the MBR and quit"},
-    {0, none, 		"unknown command, try help"}
+  {"mkdir", mkdir, 	"create a directory"},
+  {"ls", ls, 	"list directories"},
+  {"rm",rm,"remove entry"},
+  {"cd",cd,"cd"},
+  {"pwd",pwd,"pwd"},
+  {"newf",new_file,"new file"},
+  {"dmpb", dmpb,	"dump sector b"},
+  {"exit", xit,	"exit (without saving)"},
+  {"quit", quit,	"save the MBR and quit"},
+  {0, none, 		"unknown command, try help"}
 } ;
 
 /* ------------------------------
@@ -87,22 +89,22 @@ unsigned int splitter(const char * entry, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]
 static void
 execute(const char *name)
 {
-    struct _cmd *c = commands; 
-    char split[MAX_CMD_SIZE][MAX_CMD_SIZE];    
-    unsigned int nb = 0;
-    nb = splitter(name, split);
-    while (c->name && strcmp (split[0], c->name))
-	c++;
-    (*c->fun)(nb, split);
+  struct _cmd *c = commands; 
+  char split[MAX_CMD_SIZE][MAX_CMD_SIZE];    
+  unsigned int nb = 0;
+  nb = splitter(name, split);
+  while (c->name && strcmp (split[0], c->name))
+    c++;
+  (*c->fun)(nb, split);
 }
 
 static void
 loop(void)
 {
-    char name[MAX_CMD_SIZE];
+  char name[MAX_CMD_SIZE];
 
-    while (printf("> "), fgets (name, MAX_CMD_SIZE, stdin) != NULL) 
-	execute(name) ;
+  while (printf("> "), fgets (name, MAX_CMD_SIZE, stdin) != NULL) 
+    execute(name) ;
 
 }
 
@@ -149,6 +151,11 @@ mkdir(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]) {
 
 }
 
+static void
+new_file(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]) {
+  /* file_desc_t fd; */
+  printf("Ifile %d is used to contain it\n", create_file(split[1], FILE_FILE));
+}
 
 static void
 rm(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]) {
@@ -159,20 +166,24 @@ rm(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]) {
 
 static void
 ls(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]) {
-
-  int i;
-  struct inode_s inode;
-  read_inode(1,&inode);
-  for(i=0;i<N_DIRECT;i++){
-    printf("%d\n",inode.in_direct[i]);
-  }
-  /* dinumber_of_path("/", const char **basename); */
+  struct file_desc_s fd;
+  char *buff;
+  buff=calloc(1024,sizeof(char));
+  open_file(&fd,split[1]);
+  read_file(&fd,buff,1024);
+  printf("%s\n",buff);
 }
 
 static void
 cd(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]) {
-
-  current_pwd = split[1];
+ 
+  if((inumber_of_path(split[1]))){
+    in_current_pwd = inumber_of_path(split[1]);
+    current_pwd = split[1];
+  }else{
+    printf(RED "Le dossier n'existe pas\n" RED);
+    
+  }
 }
 
 static void
@@ -184,7 +195,7 @@ pwd(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]) {
 static void
 do_xit()
 {
-    exit(EXIT_SUCCESS);
+  exit(EXIT_SUCCESS);
 }
 
 static void
@@ -199,28 +210,31 @@ quit(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE])
 static void
 xit(unsigned int nb, char cmd[MAX_CMD_SIZE][MAX_CMD_SIZE])
 {
-    do_xit(); 
+  do_xit(); 
 }
 
 
 static void
 none(unsigned int nb, char cmd[MAX_CMD_SIZE][MAX_CMD_SIZE])
 {
-    /* printf ("%s\n", cmd[0]) ; */
+  /* printf ("%s\n", cmd[0]) ; */
 }
 
 int
 main(int argc, char **argv)
 {
-    /* dialog with user */ 
-    /* init_master(); */
-    /* load_mbr(); */
-    mount();
-    loop();
-    /* abnormal end of dialog (cause EOF for xample) */
-    do_xit();
-    umount();
-    /* make gcc -W happy */
-    current_pwd = "/";
-    exit(EXIT_SUCCESS);
+  /* dialog with user */ 
+  /* init_master(); */
+  /* load_mbr(); */
+  
+  sem_init(&semaphore_disque,0,1);
+  in_current_pwd = inumber_of_path("/");
+  current_pwd = "/";
+  mount();
+  loop();
+  /* abnormal end of dialog (cause EOF for xample) */
+  do_xit();
+  umount();
+  /* make gcc -W happy */
+  exit(EXIT_SUCCESS);
 }

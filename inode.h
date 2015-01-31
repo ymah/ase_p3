@@ -33,6 +33,7 @@ struct inode_s {
   unsigned int in_direct[N_DIRECT];
   unsigned int in_indirect;
   unsigned int in_d_indirect;
+
 };
 
 /* a bloc full of zeros */
