@@ -46,6 +46,7 @@ static void none(unsigned int nb, char cmd[MAX_CMD_SIZE][MAX_CMD_SIZE]);
 static void cd(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]);
 static void pwd(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]);
 static void new_file(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]);
+static void help(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]);
 
 
 static struct _cmd commands [] = {
@@ -58,6 +59,7 @@ static struct _cmd commands [] = {
   {"dmpb", dmpb,	"dump sector b"},
   {"exit", xit,	"exit (without saving)"},
   {"quit", quit,	"save the MBR and quit"},
+  {"help", help,	"display this help"},
   {0, none, 		"unknown command, try help"}
 } ;
 
@@ -147,7 +149,7 @@ dmpb(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]) {
 static void
 mkdir(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]) {
   /* file_desc_t fd; */
-  printf("Ifile %d is used to contain it\n", create_file(split[1], FILE_DIRECTORY));
+  create_file(split[1], FILE_DIRECTORY);
 
 }
 
@@ -163,15 +165,24 @@ rm(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]) {
   printf("Ifile %d is used to contain it\n", delete_file(split[1])); 
 }
 
-
+/* pour le moment, nous ne listons que les dir */
 static void
 ls(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]) {
-  struct file_desc_s fd;
-  char *buff;
-  buff=calloc(1024,sizeof(char));
-  open_file(&fd,split[1]);
-  read_file(&fd,buff,1024);
-  printf("%s\n",buff);
+  file_desc_t _fd, *fd = &_fd;
+  unsigned int ientry = 0; /* the entry index */
+
+  struct entry_s entry;
+  int current_path = inumber_of_path(current_pwd);
+
+  open_ifile(fd, current_path);
+  seek2_ifile(fd, 0);
+  
+  /* look after the right entry */
+  while (read_ifile (fd, &entry, sizeof(struct entry_s)) != READ_EOF) {
+    printf("%s\n", entry.ent_basename);
+    ientry++;
+  }
+
 }
 
 static void
@@ -181,7 +192,7 @@ cd(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE]) {
     in_current_pwd = inumber_of_path(split[1]);
     current_pwd = split[1];
   }else{
-    printf(RED "Le dossier n'existe pas\n" RED);
+    printf(RED "Le dossier n'existe pas\n" RESET);
     
   }
 }
@@ -198,6 +209,7 @@ do_xit()
   exit(EXIT_SUCCESS);
 }
 
+
 static void
 quit(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE])
 {
@@ -213,11 +225,19 @@ xit(unsigned int nb, char cmd[MAX_CMD_SIZE][MAX_CMD_SIZE])
   do_xit(); 
 }
 
+static void 
+help(unsigned int nb, char split[MAX_CMD_SIZE][MAX_CMD_SIZE])
+{
+    struct _cmd *c = commands;
+  
+    for (; c->name; c++) 
+	printf ("%s\t-- %s\n", c->name, c->comment);
+}
 
 static void
 none(unsigned int nb, char cmd[MAX_CMD_SIZE][MAX_CMD_SIZE])
 {
-  /* printf ("%s\n", cmd[0]) ; */
+  printf ("%s\n", cmd[0]) ;
 }
 
 int
