@@ -1,6 +1,5 @@
 #include "vol.h"
 #include "tools.h"
-int debug = 0;
 
 int sector_of_bloc(int vol, int b) {
   return (mbr.mbr_vol[vol].vol_first_sector + b) % MAX_SECTOR;
@@ -14,7 +13,7 @@ int cylinder_of_bloc(int vol, int b) {
 void read_bloc_n(unsigned int vol, unsigned int nbloc, unsigned char *buffer, unsigned int size) {
   int cylinder, sector;
   /* si on essait de lire un volume qui n'a pas été initialise */
-  if(debug) {
+  if(DEBUG) {
     printDebug(FNNAME, "");
     printf("vol = %d -- mbr.mbr_n_vol = %d -- nbloc = %d\n", vol, mbr.mbr_n_vol, nbloc);
     
@@ -30,7 +29,7 @@ void read_bloc_n(unsigned int vol, unsigned int nbloc, unsigned char *buffer, un
   }
   cylinder = cylinder_of_bloc(vol, nbloc);
   sector = sector_of_bloc(vol, nbloc);
-  if(debug)
+  if(DEBUG)
     printf(BOLDGREEN"[read bloc n]"RESET GREEN" cylinder = %d -- sector = %d\n"RESET, cylinder, sector);
   read_sector_n(cylinder, sector, buffer, size);
 
@@ -46,7 +45,7 @@ void read_bloc(unsigned int vol, unsigned int nbloc, unsigned char *buffer) {
 void write_bloc_n(unsigned int vol, unsigned int nbloc, const unsigned char *buffer, unsigned int size) {
   int cylinder, sector;
 
-  if(debug) {
+  if(DEBUG) {
     printDebug(FNNAME, "");
     printf("vol = %d -- mbr.mbr_n_vol = %d\n", vol, mbr.mbr_n_vol);
   }
@@ -62,7 +61,8 @@ void write_bloc_n(unsigned int vol, unsigned int nbloc, const unsigned char *buf
   
   cylinder = cylinder_of_bloc(vol, nbloc);
   sector = sector_of_bloc(vol, nbloc);
-  printf(BOLDGREEN"[write bloc n]"RESET GREEN" cylinder = %d -- sector = %d\n"RESET, cylinder, sector);
+  if(DEBUG)
+    printf(BOLDGREEN"[write bloc n]"RESET GREEN" cylinder = %d -- sector = %d\n"RESET, cylinder, sector);
   write_sector_n(cylinder, sector, buffer, size);
 
 
@@ -75,7 +75,7 @@ void write_bloc(unsigned int vol, unsigned int nbloc, const unsigned char *buffe
 
 void format_vol(unsigned int vol) {
   int cylinder, sector, nsector;
-  if(debug)
+  if(DEBUG)
     printDebug(FNNAME, "");
   if(vol +1 > mbr.mbr_n_vol) {
     printf(BOLDRED "Ce volume n'existe pas sur le disque\n" RESET);

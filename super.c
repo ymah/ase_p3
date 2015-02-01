@@ -59,7 +59,8 @@ int load_super(unsigned int vol) {
 }
 
 void save_super() {
-  printf(BOLDGREEN"[save super] writte super\n"RESET);
+  if(DEBUG)
+    printDebug(FNNAME, "writte super");
   write_bloc_n(current_vol, SUPER, (unsigned char*)&current_super, sizeof(current_super));
 }
 
@@ -98,9 +99,11 @@ int new_bloc() {
     /* on change les données qui seront dans le premier bloc libre */
     free_bloc.fb_n_free --;
     /* on met à jour le premier bloc libre */
-    printf(BOLDGREEN"[new bloc]" RESET GREEN " mise a jour info premier bloc libre\n");
+    if(DEBUG)
+      printDebug(FNNAME, "mise a jour info premier bloc libre");
     write_bloc_n(current_vol, current_super.super_first_free_bloc, (unsigned char*)&free_bloc, sizeof(free_bloc));
-    printf(BOLDGREEN"[new bloc]" RESET GREEN " save super\n"RESET);
+    if(DEBUG)
+      printDebug(FNNAME, "save super\n");
     save_super();
     if(DEBUG) {
       printDebug(FNNAME, "return new");
