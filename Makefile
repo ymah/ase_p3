@@ -5,7 +5,7 @@
 #ROOTDIR=/home/rkouere/m1/S2/ASE++/libhardware-linux-x86-r128/
 #mahieddine
 ROOTDIR=/home/mahieddine/Documents/cours/M1S2/ASEa/libhardware
-ORDDIR=../ordonnanceur/
+# ORDDIR=../ordonnanceur/
 
 CC	= gcc
 CFLAGS	= -Wall -ansi -pedantic
@@ -21,7 +21,7 @@ LIBS    = -lhardware
 ###------------------------------------------------------------
 BINARIES= mkhd dmps frmt vm test mknfs dfs shell if_pfile if_nfile if_cfile if_dfile
 OBJECTS	= $(addsuffix .o,\
-	  drive vol sched $(ORDDIR)hw mbr vol super tools mount inode ifile file dir)
+	  drive vol mbr vol super tools mount inode ifile file dir)
 
 
 
@@ -92,7 +92,7 @@ test.o: test.c mount.h inode.h tools.h hw.h super.h mbr.h drive.h colors.h vol.h
 tools.o: tools.c tools.h
 vm.o: vm.c drive.h hw.h mbr.h colors.h mount.h
 vol.o: vol.c vol.h drive.h hw.h mbr.h colors.h
-sched.o: sched.c sched.h $(ORDDIR)hw.h
+
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< $(INCDIR)

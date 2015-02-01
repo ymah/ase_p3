@@ -1,7 +1,7 @@
 #include <stdarg.h>
 #include "drive.h"
 #include "tools.h"
-#include "sched.h"
+
 static void go_to_sector(int cylindre, int sector);
 
 /* utilise pour initialiser le hardware */
@@ -66,10 +66,10 @@ void read_sector_n(unsigned int cylinder, unsigned int sector, unsigned char *bu
 
 void read_sector(unsigned int cylinder, unsigned int sector, unsigned char *buffer) {
 
-  va_list args;
+  /* va_list args; */
 
-  va_sart(args,buffer);
-  /* read_sector_n(cylinder, sector, buffer, SECTOR_SIZE); */
+  /* va_sart(args,buffer); */
+  read_sector_n(cylinder, sector, buffer, SECTOR_SIZE);
 }
 
 void write_sector_n(unsigned int cylinder, unsigned int sector, const unsigned char *buffer, int n) {
@@ -97,11 +97,11 @@ void write_sector_n(unsigned int cylinder, unsigned int sector, const unsigned c
 
 void write_sector(unsigned int cylinder, unsigned int sector, const unsigned char *buffer) {
 
-  void *args = {cylinder,sector,buffer,SECTOR_SIZE};
-  create_ctx(16384,&write_sector_n,args);
-  start();
-  printf("done");
-  /* write_sector_n(cylinder, sector, buffer, SECTOR_SIZE);   */
+  /* void *args = {cylinder,sector,buffer,SECTOR_SIZE}; */
+  /* create_ctx(16384,&write_sector_n,args); */
+  /* start(); */
+  /* printf("done"); */
+  write_sector_n(cylinder, sector, buffer, SECTOR_SIZE);
 }
 
 
