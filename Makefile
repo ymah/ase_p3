@@ -2,16 +2,22 @@
 ##############################################################################
 
 #ROOTDIR=/home/enseign/ASE
-#ROOTDIR=/home/rkouere/m1/S2/ASE++/libhardware-linux-x86-r128/
+ROOTDIR=/home/rkouere/fac/S2/ASE++/libhardware-linux-x86-r128
 #mahieddine
-ROOTDIR=/home/mahieddine/Documents/cours/M1S2/ASEa/libhardware
+#ROOTDIR=/home/mahieddine/Documents/cours/M1S2/ASEa/libhardware
 # ORDDIR=../ordonnanceur/
 
 CC	= gcc
 CFLAGS	= -Wall -ansi -pedantic
-CFLAGS  += -g #-m32
+#nico
+CFLAGS  += -g -m32
 CFLAGS  += -std=iso9899:1999
-CFLAGS += -lpthread
+CFLAGS += -pthread
+#mah
+# CFLAGS  += -g #-m32
+# CFLAGS  += -std=iso9899:1999
+# CFLAGS += -lpthread
+
 LIBDIR  = -L$(ROOTDIR)/lib
 INCDIR  = -I$(ROOTDIR)/include
 LIBS    = -lhardware
