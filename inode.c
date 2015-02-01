@@ -30,7 +30,8 @@ unsigned int create_inode(enum file_type_e type) {
     return 0;
   }
   else {
-    printDebug(FNNAME, "write inode (inode created)");
+    if(DEBUG)
+      printDebug(FNNAME, "write inode (inode created)");
     write_inode(inumber, &inode);
   }
   return inumber;
