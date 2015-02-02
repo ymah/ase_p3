@@ -29,13 +29,6 @@ int init_ctx(struct ctx_s *ctx, int stack_size, func_t f, void *args){
 }
 
 
-void irq_enable(){
-
-}
-void irq_disable(){
-
-}
-
 
 
 int create_ctx(int size, func_t f, void * args){

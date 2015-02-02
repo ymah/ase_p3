@@ -18,3 +18,9 @@
 #define TIMER_ALARM 0xF8
 #define TIMER_IRQ 2
 #define TIMER_TICKS 1
+
+
+
+
+void irq_enable();
+void irq_disable();
