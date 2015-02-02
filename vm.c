@@ -266,6 +266,7 @@ main(int argc, char **argv)
 
   init_master();
   printf(BOLDGREEN"[mount sequence]"RESET GREEN" load mbr\n");
+
   load_mbr();
   /* mount(); */
   loop();

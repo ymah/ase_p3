@@ -117,7 +117,7 @@ static void go_to_sector(int cylinder, int sector) {
     exit(EXIT_FAILURE);
   }
 
-
+  sem_down(semaphore_disque);
   _out(HDA_DATAREGS, (cylinder >> 8) & 0xFF);
   _out(HDA_DATAREGS + 1, cylinder & 0xFF);
   _out(HDA_DATAREGS + 2, (sector >> 8) & 0xFF);
@@ -126,7 +126,7 @@ static void go_to_sector(int cylinder, int sector) {
 
 
   _sleep(HDA_IRQ);
-
+  sem_up(semaphore_disque);
 }
 
 void check_hda() {

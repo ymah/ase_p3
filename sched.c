@@ -140,9 +140,11 @@ void debloquer(struct sem_s *sem){
 
 void sem_init(struct sem_s *sem, unsigned int val, char* name){
   printf(BOLDGREEN"[init semaphore disque]"RESET GREEN"\n"RESET);
+  assert(sem);
   sem->sem_cpt = val;
   sem->sem_head = NULL;
   sem->sem_name = name;
+
 }
 
 

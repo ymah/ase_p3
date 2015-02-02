@@ -60,11 +60,10 @@ boot(){
   printf(BOLDGREEN"[boot sequence]"RESET GREEN" init hardware\n");
   status = init_hardware(hw_config);
   ffatal(status, "error in hardware initialization with %s\n", hw_config);
-
   /* Interrupt handlers */
   for(i=0; i<16; i++)
     IRQVECTOR[i] = emptyIT;
-  /* IRQVECTOR[2] = test; */
+  /* IRQVECTOR[2] = yield; */
 
   /* Allows all IT */
   /* intialisation timer */

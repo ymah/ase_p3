@@ -19,7 +19,7 @@
 #include "mount.h"
 #include "file.h"
 #include "dir.h"
-
+#include "sched.h"
 
 /* ------------------------------
    command listh
@@ -28,6 +28,8 @@
 #define MAX_CMD_SIZE 64
 unsigned int in_current_pwd;
 char *current_pwd = "/";
+
+
 /* used to store de arguments sent to each commands */
 
 struct _cmd {

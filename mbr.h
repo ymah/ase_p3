@@ -6,7 +6,7 @@
 #include "tools.h"
 #include "drive.h"
 #include "colors.h"
-
+#include "sched.h"
 
 #define MAX_VOL 8
 #define MBR_MAGIC 0xABC32

@@ -1,6 +1,13 @@
 /* defini les info sur le disque */
 #ifndef _HARDWARE
 #define _HARDWARE
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <setjmp.h>
+#include <assert.h>
+#include "hardware.h"
+
 #define SECTOR_SIZE 256
 #define MAX_SECTOR 16
 #define MAX_CYLINDER 16
