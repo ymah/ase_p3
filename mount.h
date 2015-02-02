@@ -18,6 +18,7 @@
 
 unsigned int current_volume;
 void mount();
+void boot();
 void umount();
 void load_current_volume ();
 

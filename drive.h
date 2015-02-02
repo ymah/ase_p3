@@ -1,16 +1,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <semaphore.h>
+
 
 #include "hardware.h"
 #include "hw.h"
+/* #include "sched.h" */
 
 #ifndef _DRIVE
 #define _DRIVE
 
 
-sem_t semaphore_disque;
+struct sem_s *semaphore_disque;
 
 
 void check_hda();

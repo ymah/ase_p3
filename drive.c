@@ -2,6 +2,7 @@
 #include "drive.h"
 #include "tools.h"
 
+
 static void go_to_sector(int cylindre, int sector);
 
 /* utilise pour initialiser le hardware */
@@ -33,7 +34,7 @@ void init_master() {
 
 void format_sector(unsigned int cylinder, unsigned int sector, unsigned int nsector, unsigned int value) {
 
-  sem_wait(&semaphore_disque);
+
   go_to_sector(cylinder, sector);
   _out(HDA_DATAREGS, (nsector >> 8) & 0xFF);
   _out(HDA_DATAREGS + 1, nsector & 0xFF);
@@ -43,7 +44,7 @@ void format_sector(unsigned int cylinder, unsigned int sector, unsigned int nsec
   _out(HDA_DATAREGS + 5, value & 0xFF);
   _out(HDA_CMDREG, CMD_FORMAT);
   _sleep(HDA_IRQ);
-  sem_post(&semaphore_disque);
+
 }
 
 /* lit n nombre de secteur */
@@ -52,14 +53,14 @@ void read_sector_n(unsigned int cylinder, unsigned int sector, unsigned char *bu
     printf("Vous essayez de lire un nombre de secteur plus grand que le nombre de secteur dispo\n");
     exit(EXIT_FAILURE);
   }
-  sem_wait(&semaphore_disque);
+
   go_to_sector(cylinder, sector);
   _out(HDA_DATAREGS, 1 & 0xFF);
   _out(HDA_CMDREG, CMD_READ);
 
   _sleep(HDA_IRQ);
   memcpy(buffer,MASTERBUFFER,n);
-  sem_post(&semaphore_disque);
+
 
 }
 
@@ -80,7 +81,7 @@ void write_sector_n(unsigned int cylinder, unsigned int sector, const unsigned c
     exit(EXIT_FAILURE);
   }
 
-  /* sem_wait(&semaphore_disque); */
+
   for(i = 0; i < SECTOR_SIZE; i++)
     MASTERBUFFER[i] = 0;
   go_to_sector(cylinder, sector);
@@ -90,7 +91,7 @@ void write_sector_n(unsigned int cylinder, unsigned int sector, const unsigned c
   _out(HDA_CMDREG, CMD_WRITE);
 
   _sleep(HDA_IRQ);
-  /* sem_post(&semaphore_disque); */
+
 
 }
 
@@ -116,7 +117,7 @@ static void go_to_sector(int cylinder, int sector) {
     printf("Appel de la fonction go_to_sector avec un cylinder superieur a MAX_CYLINDER\n");
     exit(EXIT_FAILURE);
   }
-  /* sem_wait(&semaphore_disque); */
+
   _out(HDA_DATAREGS, (cylinder >> 8) & 0xFF);
   _out(HDA_DATAREGS + 1, cylinder & 0xFF);
   _out(HDA_DATAREGS + 2, (sector >> 8) & 0xFF);
@@ -124,12 +125,12 @@ static void go_to_sector(int cylinder, int sector) {
   _out(HDA_CMDREG, CMD_SEEK);
 
   _sleep(HDA_IRQ);
-  /* sem_post(&semaphore_disque); */
+
 }
 
 void check_hda() {
   int sector_size, max_sector, max_cylinder;
-  sem_wait(&semaphore_disque);
+
   _out(HDA_CMDREG, CMD_DSKINFO);
 
   max_cylinder = _in(HDA_DATAREGS) << 8;
@@ -153,7 +154,7 @@ void check_hda() {
     printf("Sector size is %d. Please RECOMPILE with correct sector size\n", sector_size);
     exit(EXIT_FAILURE);
   }
-  sem_post(&semaphore_disque);
-  
+
+
 
 }

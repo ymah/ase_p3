@@ -263,7 +263,7 @@ main(int argc, char **argv)
   if(DEBUG)
     printf(BOLDGREEN"[mount sequence]"RESET GREEN" init master\n");
 
-  sem_init(&semaphore_disque,0,1);
+
   init_master();
   printf(BOLDGREEN"[mount sequence]"RESET GREEN" load mbr\n");
   load_mbr();

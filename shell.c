@@ -247,9 +247,10 @@ main(int argc, char **argv)
   /* init_master(); */
   /* load_mbr(); */
   
-  sem_init(&semaphore_disque,0,1);
+
   in_current_pwd = inumber_of_path("/");
   current_pwd = "/";
+  boot();
   mount();
   loop();
   /* abnormal end of dialog (cause EOF for xample) */

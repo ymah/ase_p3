@@ -59,24 +59,31 @@ emptyIT()
    Initialization and finalization fucntions
    ------------------------------------------------------------*/
 void
-mount()
-{
-    char *hw_config;
+boot(){
+  char *hw_config;
     int status, i; 
 
     /* Hardware initialization */
-    printf(BOLDGREEN"[mount sequence]"RESET GREEN" get hw config\n");
+    printf(BOLDGREEN"[boot sequence]"RESET GREEN" get hw config\n");
     hw_config = get_hw_config();
-    printf(BOLDGREEN"[mount sequence]"RESET GREEN" init hardware\n");
+    printf(BOLDGREEN"[boot sequence]"RESET GREEN" init hardware\n");
     status = init_hardware(hw_config);
     ffatal(status, "error in hardware initialization with %s\n", hw_config);
 
     /* Interrupt handlers */
     for(i=0; i<16; i++)
 	IRQVECTOR[i] = emptyIT;
-    
+    /* IRQVECTOR[2] = yield(); */
+
     /* Allows all IT */
+    _out(TIMER_PARAM,0xC0);
     _mask(1);
+    printf(BOLDGREEN"[boot sequence]"RESET GREEN" successful\n");
+
+}
+void
+mount()
+{
 
     /* Load MBR and current volume */
     printf(BOLDGREEN"[mount sequence]"RESET GREEN" load mbr\n");
@@ -84,6 +91,7 @@ mount()
     printf(BOLDGREEN"[mount sequence]"RESET GREEN" load current volume\n");
     load_current_volume();
 }
+
 
 void
 umount()

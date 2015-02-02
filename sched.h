@@ -4,7 +4,8 @@ TP Semaphore, réalisé par Yaker Mahieddine
 
 #include <stdarg.h>
 
-
+#ifndef _SCHED_H
+#define _SCHED_H
 #define CTX_MAGIC 0xBABE
 
 #define LOOP 1000000000
@@ -70,3 +71,4 @@ void sem_up(struct sem_s *sem);
 void sem_down(struct sem_s *sem);
 
 
+#endif
