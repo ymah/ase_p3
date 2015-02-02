@@ -62,8 +62,6 @@ void start_current_ctx(){
 
 void start(){
   printf("Entering in start for schedule");
-  setup_irq(TIMER_IRQ, &yield);
-  start_hw();
   yield();
 }
 
