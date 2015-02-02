@@ -2,9 +2,10 @@
 ##############################################################################
 
 #ROOTDIR=/home/enseign/ASE
+ROOTDIR=/home/rkouere/fac/ASE/libhardware-linux-x86-64
 # ROOTDIR=/home/rkouere/fac/S2/ASE++/libhardware-linux-x86-r128
 #mahieddine
-ROOTDIR=/home/mahieddine/Documents/cours/M1S2/ASEa/libhardware
+#ROOTDIR=/home/mahieddine/Documents/cours/M1S2/ASEa/libhardware
 
 
 CC	= gcc

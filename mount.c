@@ -59,6 +59,7 @@ emptyIT()
 /* ------------------------------
    Initialization and finalization fucntions
    ------------------------------------------------------------*/
+
 void 
 boot(){
   char *hw_config;
@@ -74,10 +75,13 @@ boot(){
     /* Interrupt handlers */
     for(i=0; i<16; i++)
 	IRQVECTOR[i] = emptyIT;
-    /* IRQVECTOR[2] = yield(); */
+    /* IRQVECTOR[2] = test; */
 
     /* Allows all IT */
+    /* intialisation timer */
     _out(TIMER_PARAM,0xC0);
+    /* set timer alarm */
+    _out(TIMER_ALARM, (0xFFFFFFFF - 32));
     _mask(1);
     printf(BOLDGREEN"[boot sequence]"RESET GREEN" successful\n");
 
