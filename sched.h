@@ -2,11 +2,17 @@
 TP Semaphore, réalisé par Yaker Mahieddine
  */
 
-#include <stdarg.h>
+
 
 #ifndef _SCHED_H
 #define _SCHED_H
 #define CTX_MAGIC 0xBABE
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <setjmp.h>
+#include <assert.h>
+#include "hw.h"
 
 #define LOOP 1000000000
 #define N 100

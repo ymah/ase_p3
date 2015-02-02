@@ -1,5 +1,6 @@
 /* defini les info sur le disque */
-
+#ifndef _HARDWARE
+#define _HARDWARE
 #define SECTOR_SIZE 256
 #define MAX_SECTOR 16
 #define MAX_CYLINDER 16
@@ -24,3 +25,5 @@
 
 void irq_enable();
 void irq_disable();
+
+#endif

@@ -1,25 +1,35 @@
 #include "inode.h"
-#include "ifile.h"
+
+
 
 void read_inode(unsigned int inumber, struct inode_s *inode) {
   read_bloc_n(current_vol, inumber, (unsigned char*)inode, sizeof(struct inode_s));
 }
 
+
+
+
 void write_inode(const unsigned int inumber, const struct inode_s *inode) {
   write_bloc_n(current_vol, inumber, (unsigned char*)inode, sizeof(struct inode_s));
 }
+
+
+
+
+
+
 
 /* permet de créer un inode */
 unsigned int create_inode(enum file_type_e type) {
   struct inode_s inode;
   unsigned int inumber;
-  
+
   /* on verifie que la taille d'un inode ne depasse pas celle d'un bloc */
   if(sizeof(inode) > BLOC_SIZE) {
     printf("La taille de l'ineoud est trop grande. Veuillez la changer (le problème vient probablement de la variable N_DIRECT.\n");
     exit(EXIT_FAILURE);
   }
-    
+
 
   memset(&inode, 0, sizeof(struct inode_s));
   inode.in_type = type;
@@ -36,6 +46,9 @@ unsigned int create_inode(enum file_type_e type) {
   }
   return inumber;
 }
+
+
+
 
 int delete_inode(unsigned int inumber) {
   struct inode_s inode;

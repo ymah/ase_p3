@@ -4,14 +4,7 @@
 */
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <setjmp.h>
-#include <assert.h>
 #include "sched.h"
-#include "hw.h"
-
 
 
 int init_ctx(struct ctx_s *ctx, int stack_size, func_t f, void *args){

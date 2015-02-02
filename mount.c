@@ -4,21 +4,10 @@
 
    Initialization and finalization
    Philippe Marquet, Nov 2009
-   
+
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
-#include <errno.h>
-#include "hardware.h"
-#include "config.h"
-#include "tools.h"
 #include "mount.h"
-#include "mbr.h"
-#include "super.h"
-#include "colors.h"
-#include "sched.h"
 
 /* load super bloc of the $CURRENT_VOLUME
    set current_volume accordingly */

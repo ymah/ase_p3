@@ -5,20 +5,15 @@
    File manipulation. 
    Basic version; access file via inode number.
    Philippe Marquet, october 2009
-   
+
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <memory.h>
-
-#include "inode.h"
-#include "tools.h"
 #include "ifile.h"
-
-#include "super.h"
-
 /* the file bloc number of a given character position in a file */  
+
+
+
+
 #define bloc_of_pos(pos) ((pos) / DATA_BLOC_SIZE)
 /* the index in a bloc of given character position in a file */  
 #define ibloc_of_pos(pos) ((pos) % DATA_BLOC_SIZE)

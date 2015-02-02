@@ -1,9 +1,16 @@
-#include "drive.h"
-#include "mbr.h"
-#include "colors.h"
-
 #ifndef _VOL
 #define _VOL
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+
+#include "tools.h"
+#include "drive.h"
+#include "colors.h"
+#include "hw.h"
+#include "sched.h"
+#include "mbr.h"
 
 /* !!!! n bloc = numero de bloc, et pas nombre de blocs */
 void read_bloc(unsigned int vol, unsigned int nbloc, unsigned char *buffer);

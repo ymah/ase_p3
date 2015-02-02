@@ -9,10 +9,18 @@
 
 #ifndef _FILE_H_
 #define _FILE_H_
-
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
+#include <errno.h>
+#include "mbr.h"
+#include "super.h"
+#include "dir.h"
 #include "tools.h"	/* for RETURN_{FAILURE,SUCCESS} */
 #include "inode.h"	/* for file_type_e */
 #include "ifile.h"
+#include "inode.h"	/* for file_type_e */
+
 /* #include "cfile.h" */
 
 /* most of the following functions return RETURN_FAILURE in case of

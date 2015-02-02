@@ -1,5 +1,8 @@
+
+
 #include "mbr.h"
-#include "tools.h"
+
+
 void load_mbr() {
   char c;
   if(sizeof(struct mbr_s) > SECTOR_SIZE) {

@@ -1,9 +1,12 @@
+#ifndef _MBR
+#define _MBR
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include "tools.h"
 #include "drive.h"
 #include "colors.h"
 
-#ifndef _MBR
-#define _MBR
 
 #define MAX_VOL 8
 #define MBR_MAGIC 0xABC32

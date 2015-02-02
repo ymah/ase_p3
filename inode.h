@@ -1,24 +1,32 @@
-
 /* ------------------------------
    $Id: inode.h,v 1.2 2009/11/17 09:44:12 marquet Exp $
    ------------------------------------------------------------
 
    Inode manipulation interface.
    Philippe Marquet, Nov 2009
-   
+
 */
 
 #ifndef _INODE_H_
 #define _INODE_H_
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
+#include <errno.h>
 
 #include "tools.h"
 #include "hw.h"
 #include "super.h"
 #include "mount.h"
 
+
 #define BLOC_SIZE       SECTOR_SIZE  
 #define DATA_BLOC_SIZE  BLOC_SIZE
 #define N_DIRECT 10
+
+
+
 /* Nombre Numéro Bloc Par Bloc = nombre de numéros de blocs que l'on peut stoquer dans un bloc de type indirect ou n_indirect. */
 #define NNBPB (BLOC_SIZE/sizeof(int))
 /* #define NNBPB 1 */

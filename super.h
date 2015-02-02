@@ -1,9 +1,15 @@
+#ifndef _SUPER_H
+#define _SUPER_H
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "inode.h"
 #include "mbr.h"
 #include "vol.h"
-#include "drive.h" 
+#include "drive.h"
+#include "colors.h"
 
-#ifndef _SUPER
-#define _SUPER
 
 #define SUPER_MAGIC 0xDEADBEEF
 #define FREE_BLOC_MAGIC 0xAD
@@ -39,4 +45,7 @@ int get_n_free_bloc();
 int new_bloc();
 void free_bloc(int bloc);
 void freeBlocs(unsigned int * bloc, unsigned int taille);
+
+
+
 #endif

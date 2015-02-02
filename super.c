@@ -1,6 +1,7 @@
 #include "super.h"
-#include "ifile.h"
+
 /* fonciton utilise pour tester -- a ne pas confondre avec get last super :) */
+
 void getCurrentSuper() {
   printf("--------INFO SUPER ------\n");
   printf("super first free bloc = %d\n", current_super.super_first_free_bloc);

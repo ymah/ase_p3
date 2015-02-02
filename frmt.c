@@ -1,8 +1,11 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include "drive.h"
-
+#include "mount.h"
 #include "colors.h"
-
-
+#include "sched.h"
+#include "hw.h"
 
 static void
 empty_it()
@@ -14,20 +17,9 @@ empty_it()
 int
 main() {
   int i, y;
-
-  /* init hardware */
-  if(init_hardware("hardware.ini") == 0) {
-    fprintf(stderr, "Error in hardware initialization\n");
-    exit(EXIT_FAILURE);
-  }
-  
-  /* Interreupt handlers */
-  for(i=0; i<16; i++)
-    IRQVECTOR[i] = empty_it;
-
-  /* Allows all IT */
-  _mask(1);  init_hardware("hardware.ini");
-  printf(BOLDGREEN"#frmt] start formating\n"RESET);
+  boot();
+  mount();
+  printf(BOLDGREEN"[frmt] start formating\n"RESET);
   for(i = 0; i < MAX_CYLINDER; i++) {
     printf(GREEN"formating %d, %d\r"RESET, i, 0);fflush(stdout); 
     for(y = 0; y < MAX_SECTOR; y++)

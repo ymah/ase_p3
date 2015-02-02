@@ -6,10 +6,6 @@
    Philippe Marquet, october 2002
    
 */
-
-#include "mbr.h"
-#include "super.h"
-#include "dir.h"
 #include "file.h"
 
 /*------------------------------

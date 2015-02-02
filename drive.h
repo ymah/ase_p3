@@ -1,3 +1,5 @@
+#ifndef _DRIVE
+#define _DRIVE
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -5,10 +7,13 @@
 
 #include "hardware.h"
 #include "hw.h"
-/* #include "sched.h" */
 
-#ifndef _DRIVE
-#define _DRIVE
+#ifndef _SCHED_H
+#define _SCHED_H
+#include "sched.h"
+#endif
+
+#include "tools.h"
 
 
 struct sem_s *semaphore_disque;

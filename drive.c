@@ -1,6 +1,4 @@
-#include <stdarg.h>
 #include "drive.h"
-#include "tools.h"
 
 
 static void go_to_sector(int cylindre, int sector);

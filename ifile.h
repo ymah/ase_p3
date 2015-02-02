@@ -11,7 +11,15 @@
 #ifndef _IFILE_H_
 #define _IFILE_H_
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <memory.h>
+#include "hw.h"
 #include "inode.h"
+#include "tools.h"
+
+
+
 
 /* Despite the user does not need these definitions, our first
    implementation allocates file descriptors in the user space. Thus
