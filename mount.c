@@ -18,6 +18,7 @@
 #include "mbr.h"
 #include "super.h"
 #include "colors.h"
+#include "sched.h"
 
 /* load super bloc of the $CURRENT_VOLUME
    set current_volume accordingly */
@@ -58,10 +59,10 @@ emptyIT()
 /* ------------------------------
    Initialization and finalization fucntions
    ------------------------------------------------------------*/
-void
+void 
 boot(){
   char *hw_config;
-    int status, i; 
+  int status, i; 
 
     /* Hardware initialization */
     printf(BOLDGREEN"[boot sequence]"RESET GREEN" get hw config\n");

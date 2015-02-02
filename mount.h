@@ -21,5 +21,5 @@ void mount();
 void boot();
 void umount();
 void load_current_volume ();
-
+void boot();
 #endif
