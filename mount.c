@@ -18,6 +18,7 @@
 #include "mbr.h"
 #include "super.h"
 #include "colors.h"
+#include "sched.h"
 
 /* load super bloc of the $CURRENT_VOLUME
    set current_volume accordingly */
@@ -58,25 +59,33 @@ emptyIT()
 /* ------------------------------
    Initialization and finalization fucntions
    ------------------------------------------------------------*/
+
 void
-mount()
-{
+boot() {
     char *hw_config;
     int status, i; 
 
     /* Hardware initialization */
-    printf(BOLDGREEN"[mount sequence]"RESET GREEN" get hw config\n");
+    printf(BOLDGREEN"[boot sequence]"RESET GREEN" get hw config\n");
     hw_config = get_hw_config();
-    printf(BOLDGREEN"[mount sequence]"RESET GREEN" init hardware\n");
+    printf(BOLDGREEN"[boot sequence]"RESET GREEN" init hardware\n");
     status = init_hardware(hw_config);
     ffatal(status, "error in hardware initialization with %s\n", hw_config);
 
     /* Interrupt handlers */
     for(i=0; i<16; i++)
 	IRQVECTOR[i] = emptyIT;
+    IRQVECTOR[2] = yield;
     
     /* Allows all IT */
     _mask(1);
+    printf(BOLDGREEN"[boot sequence]"RESET GREEN" boot successfull\n");
+
+}
+
+void
+mount()
+{
 
     /* Load MBR and current volume */
     printf(BOLDGREEN"[mount sequence]"RESET GREEN" load mbr\n");

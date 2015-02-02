@@ -20,5 +20,5 @@ unsigned int current_volume;
 void mount();
 void umount();
 void load_current_volume ();
-
+void boot();
 #endif
