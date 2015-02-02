@@ -20,7 +20,7 @@
 #include "mbr.h"
 #include "super.h"
 #include "colors.h"
-#include "sched.h"
+#include "drive.h"
 #include "hw.h"
 
 /*  initialize hardware, mount the "current" volume

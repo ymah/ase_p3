@@ -1,11 +1,4 @@
-/*
-  TP Semaphore, réalisé par Yaker Mahieddine
-
-*/
-
-
 #include "sched.h"
-
 
 int init_ctx(struct ctx_s *ctx, int stack_size, func_t f, void *args){
   ctx->ctx_stack = (char*) malloc(stack_size);
@@ -55,6 +48,9 @@ void start_current_ctx(){
 
 void start(){
   printf("Entering in start for schedule");
+  next_index=0;
+  current_ctx= (struct ctx_s *) 0;
+  ring_head = (struct ctx_s *) 0;
   yield();
 }
 
@@ -143,6 +139,7 @@ void debloquer(struct sem_s *sem){
 
 
 void sem_init(struct sem_s *sem, unsigned int val, char* name){
+  printf(BOLDGREEN"[init semaphore disque]"RESET GREEN"\n"RESET);
   sem->sem_cpt = val;
   sem->sem_head = NULL;
   sem->sem_name = name;

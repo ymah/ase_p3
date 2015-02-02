@@ -32,7 +32,7 @@ void init_master() {
 
 void format_sector(unsigned int cylinder, unsigned int sector, unsigned int nsector, unsigned int value) {
 
-
+  sem_up(semaphore_disque);
   go_to_sector(cylinder, sector);
   _out(HDA_DATAREGS, (nsector >> 8) & 0xFF);
   _out(HDA_DATAREGS + 1, nsector & 0xFF);
@@ -42,7 +42,7 @@ void format_sector(unsigned int cylinder, unsigned int sector, unsigned int nsec
   _out(HDA_DATAREGS + 5, value & 0xFF);
   _out(HDA_CMDREG, CMD_FORMAT);
   _sleep(HDA_IRQ);
-
+  sem_down(semaphore_disque);
 }
 
 /* lit n nombre de secteur */
@@ -53,10 +53,11 @@ void read_sector_n(unsigned int cylinder, unsigned int sector, unsigned char *bu
   }
 
   go_to_sector(cylinder, sector);
+  sem_up(semaphore_disque);
   _out(HDA_DATAREGS, 1 & 0xFF);
   _out(HDA_CMDREG, CMD_READ);
-
   _sleep(HDA_IRQ);
+  sem_down(semaphore_disque);
   memcpy(buffer,MASTERBUFFER,n);
 
 
@@ -83,13 +84,14 @@ void write_sector_n(unsigned int cylinder, unsigned int sector, const unsigned c
   for(i = 0; i < SECTOR_SIZE; i++)
     MASTERBUFFER[i] = 0;
   go_to_sector(cylinder, sector);
+  sem_up(semaphore_disque);
   _out(HDA_DATAREGS, 0);
   _out(HDA_DATAREGS+1, 1 & 0xFF);
   memcpy(MASTERBUFFER,buffer,n);
   _out(HDA_CMDREG, CMD_WRITE);
 
   _sleep(HDA_IRQ);
-
+  sem_down(semaphore_disque);
 
 }
 
@@ -115,12 +117,14 @@ static void go_to_sector(int cylinder, int sector) {
     printf("Appel de la fonction go_to_sector avec un cylinder superieur a MAX_CYLINDER\n");
     exit(EXIT_FAILURE);
   }
+  sem_up(semaphore_disque);
 
   _out(HDA_DATAREGS, (cylinder >> 8) & 0xFF);
   _out(HDA_DATAREGS + 1, cylinder & 0xFF);
   _out(HDA_DATAREGS + 2, (sector >> 8) & 0xFF);
   _out(HDA_DATAREGS + 3, sector & 0xFF);
   _out(HDA_CMDREG, CMD_SEEK);
+  sem_down(semaphore_disque);
 
   _sleep(HDA_IRQ);
 

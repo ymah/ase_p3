@@ -1,0 +1,31 @@
+##----------------------------------------------------------------------------
+# Created with genmake.pl v1.1 on Mon Feb  2 19:21:09 2015
+# genmake.pl home: http://muquit.com/muquit/software/
+# Copryright: GNU GPL (http://www.gnu.org/copyleft/gpl.html)
+##----------------------------------------------------------------------------
+rm=/bin/rm -f
+CC= cc
+DEFS=  
+PROGNAME= shell
+INCLUDES=  -I.
+LIBS=
+
+
+DEFINES= $(INCLUDES) $(DEFS) -DSYS_UNIX=1
+CFLAGS= -g $(DEFINES)
+
+SRCS = current.c dfs.c dir.c dmps.c drive.c file.c frmt.c hw.c if_cfile.c if_dfile.c ifile.c if_nfile.c if_pfile.c inode.c mbr.c mkhd.c mknfs.c mkvol.c mount.c sched.c shell.c super.c test.c tools.c vm.c vol.c 
+
+OBJS = current.o dfs.o dir.o dmps.o drive.o file.o frmt.o hw.o if_cfile.o if_dfile.o ifile.o if_nfile.o if_pfile.o inode.o mbr.o mkhd.o mknfs.o mkvol.o mount.o sched.o shell.o super.o test.o tools.o vm.o vol.o 
+
+.c.o:
+	$(rm) $@
+	$(CC) $(CFLAGS) -c $*.c
+
+all: $(PROGNAME)
+
+$(PROGNAME) : $(OBJS)
+	$(CC) $(CFLAGS) -o $(PROGNAME) $(OBJS) $(LIBS)
+
+clean:
+	$(rm) $(OBJS) $(PROGNAME) core *~

@@ -1,5 +1,5 @@
-#ifndef _DRIVE
-#define _DRIVE
+#ifndef _DRIVE_H
+#define _DRIVE_H
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,16 +7,17 @@
 
 #include "hardware.h"
 #include "hw.h"
-
-#ifndef _SCHED_H
-#define _SCHED_H
-#include "sched.h"
-#endif
-
 #include "tools.h"
 
 
+#include "sched.h"
+
+
+
+
+
 struct sem_s *semaphore_disque;
+
 
 
 void check_hda();
@@ -26,6 +27,5 @@ void write_sector(unsigned int cylinder, unsigned int sector, const unsigned cha
 void write_sector_n(unsigned int cylinder, unsigned int sector, const unsigned char *buffer, int n);
 void format_sector(unsigned int cylinder, unsigned int sector, unsigned int nsector,unsigned int value);
 void init_master();
-
 
 #endif

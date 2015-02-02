@@ -1,23 +1,25 @@
 /*
 TP Semaphore, réalisé par Yaker Mahieddine
  */
-
-
-
 #ifndef _SCHED_H
 #define _SCHED_H
-#define CTX_MAGIC 0xBABE
-#include <stdio.h>
+
+
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <setjmp.h>
 #include <assert.h>
+#include "hardware.h"
 #include "hw.h"
+#include "colors.h"
+
+#define CTX_MAGIC 0xBABE
 
 #define LOOP 1000000000
 #define N 100
 
-int next_index = 0;
+int next_index;
 
 
 typedef void (func_t) (void *);
@@ -49,8 +51,8 @@ struct sem_s {
   struct ctx_s* sem_head;
 };
 
-struct ctx_s* current_ctx = (struct ctx_s *) 0;
-struct ctx_s* ring_head = (struct ctx_s *) 0;
+struct ctx_s* current_ctx;
+struct ctx_s* ring_head;
 struct ctx_s* return_ctx;
 struct sem_s mutex, vide, plein;
 
@@ -75,6 +77,7 @@ void yield();
 void sem_init(struct sem_s *sem, unsigned int val, char* name);
 void sem_up(struct sem_s *sem);
 void sem_down(struct sem_s *sem);
+
 
 
 #endif

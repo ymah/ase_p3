@@ -10,14 +10,14 @@
    
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "drive.h"
+
+
 #include "mbr.h"
 #include "colors.h"
 #include "mount.h"
 #include "tools.h"
+#include "drive.h"
+
 /* ------------------------------
    command list
    ------------------------------------------------------------*/
@@ -162,13 +162,13 @@ new(struct _cmd *c)
     else if(cylindre == 0 && sector == 0) {
       printf(BOLDRED "Le cylindre 0, secteur 0 est un emplacement reserve. Vous ne pouvez ecrire dedant.\n" RESET);
     }
-    /* FIN verification des données... enfin presque, j'en fait une derniere en dessous ! */    
-      
+    /* FIN verification des données... enfin presque, j'en fait une derniere en dessous ! */
+
     else if(partitionValide == 1) { /* si on peut ecrire la partition */
       mbr.mbr_vol[mbr.mbr_n_vol].vol_first_cylinder = cylindre;
       mbr.mbr_vol[mbr.mbr_n_vol].vol_first_sector = sector;
       mbr.mbr_vol[mbr.mbr_n_vol].vol_n_sector = n_sector;
-	
+
       switch(vol_type) {
       case 0:
 	mbr.mbr_vol[mbr.mbr_n_vol].vol_type = VOLT_PR;
