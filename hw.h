@@ -11,3 +11,10 @@
 
 #define DEBUG 0
 #define FNNAME __func__
+
+
+#define TIMER_CLOCK 0xF0
+#define TIMER_PARAM 0xF4
+#define TIMER_ALARM 0xF8
+#define TIMER_IRQ 2
+#define TIMER_TICKS 1

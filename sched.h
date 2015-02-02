@@ -1,6 +1,5 @@
 /*
 TP Semaphore, réalisé par Yaker Mahieddine
-
  */
 
 #include <stdarg.h>
@@ -14,8 +13,8 @@ TP Semaphore, réalisé par Yaker Mahieddine
 int next_index = 0;
 
 
-typedef void (func_t) (void *,...);
-
+typedef void (func_t) (void *);
+typedef void (irq_handler_func_t)(void);
 typedef enum {CTX_RDY, CTX_EXQ, CTX_STP, CTX_END} state_e;
 
 
@@ -62,5 +61,15 @@ object_t stack[N];
 
 int init_ctx(struct ctx_s *ctx, int stack_size, func_t f, void *args);
 int create_ctx(int size, func_t f, void * args);
-void yield();
+void start_current_ctx();
 void start();
+void switch_to_ctx(struct ctx_s *new_ctx);
+void yield();
+void sem_init(struct sem_s *sem, unsigned int val, char* name);
+void sem_up(struct sem_s *sem);
+void sem_down(struct sem_s *sem);
+void setup_irq(unsigned int irq, irq_handler_func_t f);
+void irq_enable();
+void irq_disable();
+
+

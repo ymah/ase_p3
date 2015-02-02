@@ -10,7 +10,7 @@
 #include <setjmp.h>
 #include <assert.h>
 #include "sched.h"
-#include "../ordonnanceur/hw.h"
+#include "hw.h"
 
 
 
@@ -177,45 +177,6 @@ void sem_down(struct sem_s *sem){
   }
   irq_enable();
 }
-
-
-/*
-  Ancienne fonction utilisée pour tester le systeme de contexte.
-
-  void f_ping(void *args) {
-  int i;
-  printf("A\n") ;
-  for(i=0; i < LOOP ; i++);
-  printf("B\n") ; 
-  for(i=0; i < LOOP ; i++);
-  printf("C\n") ; 
-  }
-
-
-  void f_pong(void *args) {
-  int i=0;
-  printf("1\n") ;
-  for(i=0; i < LOOP ; i++);
-  printf("2\n") ; 
-  for(i=0; i < LOOP ; i++);
-  printf("3\n") ; 
-  for(i=0; i < LOOP ; i++);
-  printf("4\n") ; 
-  for(i=0; i < LOOP ; i++);
-  printf("5\n") ; 
-  for(i=0; i < LOOP ; i++);
-  printf("6\n") ; 
-  }
-
-
-  int main(int argc, char*argv[]){
-  create_ctx(16384, f_ping, NULL);
-  create_ctx(16384, f_pong, NULL);
-  start();
-  printf("done\n");
-  exit(EXIT_SUCCESS);
-  }
-*/
 
 
 void produce_object(object_t* object){
