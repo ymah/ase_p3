@@ -222,15 +222,3 @@ void consumer(){
   }
 }
 
-
-/* int main(int argc, char*argv[]){ */
-/*   sem_init(&mutex, 1, "mutex");  */
-/*   sem_init(&vide, N, "vide");  */
-/*   sem_init(&plein, 0, "plein"); */
-
-/*   create_ctx(16384, &producer, NULL); */
-/*   create_ctx(16384, &consumer, NULL); */
-/*   start(); */
-/*   printf("done\n"); */
-/*   exit(EXIT_SUCCESS); */
-/* } */

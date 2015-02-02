@@ -26,7 +26,7 @@ LIBS    = -lhardware
 ###------------------------------
 ### Main targets 
 ###------------------------------------------------------------
-BINARIES= vm mknfs shell if_pfile if_nfile if_cfile if_dfile
+BINARIES= vm mkhd frmt mknfs shell if_pfile if_nfile if_cfile if_dfile
 OBJECTS	= $(addsuffix .o,\
 	hw sched drive mbr vol super tools mount inode ifile file dir)
 
@@ -80,7 +80,7 @@ shell:shell.o  $(OBJECTS)
 current.o: current.c current.h
 dfs.o: dfs.c super.h mbr.h drive.h hw.h colors.h vol.h mount.h sched.h
 dir.o: dir.c super.h mbr.h drive.h hw.h colors.h vol.h inode.h tools.h mount.h ifile.h dir.h sched.h
-# dmps.o: dmps.c drive.h hw.h
+dmps.o: dmps.c drive.h hw.h
 drive.o: drive.c drive.h hw.h tools.h sched.h
 
 file.o: file.c mbr.h drive.h hw.h colors.h super.h vol.h ifile.h inode.h tools.h mount.h dir.h file.h sched.h
@@ -93,7 +93,7 @@ if_pfile.o: if_pfile.c ifile.h inode.h tools.h hw.h super.h mbr.h drive.h colors
 ifile.o: ifile.c inode.h tools.h hw.h super.h mbr.h drive.h colors.h vol.h mount.h ifile.h sched.h
 inode.o: inode.c inode.h tools.h hw.h super.h mbr.h drive.h colors.h vol.h mount.h ifile.h sched.h
 mbr.o: mbr.c mbr.h drive.h hw.h colors.h mbr.h sched.h
-# mkhd.o: mkhd.c
+mkhd.o:mkhd.c
 
 mknfs.o: mknfs.c super.h mbr.h drive.h hw.h colors.h vol.h mount.h tools.h sched.h
 mkvol.o: mkvol.c mkvol.h mbr.h drive.h hw.h colors.h sched.h
