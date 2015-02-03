@@ -10,6 +10,7 @@ TP Semaphore, réalisé par Yaker Mahieddine
 #include <string.h>
 #include <setjmp.h>
 #include <assert.h>
+#include <stdarg.h>
 #include "hardware.h"
 #include "hw.h"
 #include "colors.h"
@@ -55,7 +56,7 @@ struct ctx_s* current_ctx;
 struct ctx_s* ring_head;
 struct ctx_s* return_ctx;
 struct sem_s mutex, vide, plein;
-
+struct ctx_s* ctx_disque;
 
 typedef struct object_s{
 	int value;
@@ -69,11 +70,12 @@ typedef struct object_s{
 object_t stack[N];
 
 int init_ctx(struct ctx_s *ctx, int stack_size, func_t f, void *args);
-int create_ctx(int size, func_t f, void * args);
+int create_ctx(int size, func_t f, void * args,...);
 void start_current_ctx();
 void start();
 void switch_to_ctx(struct ctx_s *new_ctx);
 void yield();
+void my_sleep();
 void sem_init(struct sem_s *sem, unsigned int val, char* name);
 void sem_up(struct sem_s *sem);
 void sem_down(struct sem_s *sem);

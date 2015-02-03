@@ -48,11 +48,19 @@ emptyIT()
 /* ------------------------------
    Initialization and finalization fucntions
    ------------------------------------------------------------*/
-
-void 
+void
+init_context(){
+  printf(BOLDGREEN"[scheddule sequence]"RESET GREEN"\n");
+  next_index=0;
+  current_ctx= (struct ctx_s *) 0;
+  ring_head = (struct ctx_s *) 0;
+  ctx_disque = (struct ctx_s *) 0;
+  printf(BOLDGREEN"[scheddule sequence successful]"RESET GREEN"\n");
+}
+void
 boot(){
   char *hw_config;
-  int status, i; 
+  int status, i;
 
   /* Hardware initialization */
   printf(BOLDGREEN"[boot sequence]"RESET GREEN" get hw config\n");
@@ -63,17 +71,21 @@ boot(){
   /* Interrupt handlers */
   for(i=0; i<16; i++)
     IRQVECTOR[i] = emptyIT;
-  /* IRQVECTOR[2] = yield; */
-
+  init_context();
+  IRQVECTOR[TIMER_IRQ] = yield;
+  IRQVECTOR[HDA_IRQ] = my_sleep;
   /* Allows all IT */
   /* intialisation timer */
   _out(TIMER_PARAM,0xC0);
   /* set timer alarm */
   _out(TIMER_ALARM, (0xFFFFFFFF - 32));
+  
   _mask(1);
   printf(BOLDGREEN"[boot sequence]"RESET GREEN" successful\n");
 
 }
+
+
 void
 mount()
 {

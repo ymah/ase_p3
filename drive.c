@@ -55,8 +55,7 @@ void read_sector_n(unsigned int cylinder, unsigned int sector, unsigned char *bu
 
   _out(HDA_DATAREGS, 1 & 0xFF);
   _out(HDA_CMDREG, CMD_READ);
-  _sleep(HDA_IRQ);
-
+  yield();
   memcpy(buffer,MASTERBUFFER,n);
 
 
@@ -65,10 +64,9 @@ void read_sector_n(unsigned int cylinder, unsigned int sector, unsigned char *bu
 
 void read_sector(unsigned int cylinder, unsigned int sector, unsigned char *buffer) {
 
-  /* va_list args; */
 
-  /* va_sart(args,buffer); */
-  read_sector_n(cylinder, sector, buffer, SECTOR_SIZE);
+  create_ctx(16384,&read_sector_n,(void *)&cylinder);
+  /* read_sector_n(cylinder, sector, buffer, SECTOR_SIZE); */
 }
 
 void write_sector_n(unsigned int cylinder, unsigned int sector, const unsigned char *buffer, int n) {
@@ -83,14 +81,14 @@ void write_sector_n(unsigned int cylinder, unsigned int sector, const unsigned c
   for(i = 0; i < SECTOR_SIZE; i++)
     MASTERBUFFER[i] = 0;
   go_to_sector(cylinder, sector);
-
+  sem_down(semaphore_disque);
   _out(HDA_DATAREGS, 0);
   _out(HDA_DATAREGS+1, 1 & 0xFF);
   memcpy(MASTERBUFFER,buffer,n);
   _out(HDA_CMDREG, CMD_WRITE);
 
-  _sleep(HDA_IRQ);
-
+  yield();
+  sem_up(semaphore_disque);
 
 }
 
@@ -123,8 +121,6 @@ static void go_to_sector(int cylinder, int sector) {
   _out(HDA_DATAREGS + 2, (sector >> 8) & 0xFF);
   _out(HDA_DATAREGS + 3, sector & 0xFF);
   _out(HDA_CMDREG, CMD_SEEK);
-
-
   _sleep(HDA_IRQ);
   sem_up(semaphore_disque);
 }

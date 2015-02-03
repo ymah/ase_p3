@@ -7,5 +7,5 @@ void irq_enable(){
   _mask(0);
 }
 void irq_disable(){
-  _mask(15);
+  _mask(16);
 }

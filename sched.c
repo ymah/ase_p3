@@ -16,11 +16,21 @@ int init_ctx(struct ctx_s *ctx, int stack_size, func_t f, void *args){
 
 
 
-
-int create_ctx(int size, func_t f, void * args){
+int create_ctx(int size, func_t f, void * args,...){
+  va_list ap;
+  int nb_args;
+  void* cur_arg = args;
   struct ctx_s* new_ctx = (struct ctx_s*) malloc(sizeof(struct ctx_s));
-  assert(new_ctx);
+
+
   irq_disable();
+
+  assert(args);
+  va_start(ap,args);
+  for(nb_args = 0; cur_arg != NULL; nb_args++,cur_arg = va_arg(ap, void*));
+  
+  assert(new_ctx);
+
   if(init_ctx(new_ctx, size, f, args)){ /* error */ return 1; }
 
   if(!ring_head){
@@ -48,9 +58,6 @@ void start_current_ctx(){
 
 void start(){
   printf("Entering in start for schedule");
-  next_index=0;
-  current_ctx= (struct ctx_s *) 0;
-  ring_head = (struct ctx_s *) 0;
   yield();
 }
 
@@ -114,6 +121,10 @@ void yield(){
 }
 
 
+void my_sleep(){
+  assert(ctx_disque);
+  switch_to_ctx(ctx_disque);
+}
 
 
 
