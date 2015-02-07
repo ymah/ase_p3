@@ -57,6 +57,8 @@ init_context(){
   ctx_disque = (struct ctx_s *) 0;
   printf(BOLDGREEN"[scheddule sequence successful]"RESET GREEN"\n");
 }
+
+
 void
 boot(){
   char *hw_config;
@@ -72,13 +74,13 @@ boot(){
   for(i=0; i<16; i++)
     IRQVECTOR[i] = emptyIT;
   init_context();
+  _out(TIMER_ALARM, (0xFFFFFFFF - 32));
   IRQVECTOR[TIMER_IRQ] = yield;
   IRQVECTOR[HDA_IRQ] = my_sleep;
   /* Allows all IT */
   /* intialisation timer */
   _out(TIMER_PARAM,0xC0);
   /* set timer alarm */
-  _out(TIMER_ALARM, (0xFFFFFFFF - 32));
   
   _mask(1);
   printf(BOLDGREEN"[boot sequence]"RESET GREEN" successful\n");

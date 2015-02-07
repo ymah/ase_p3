@@ -1,20 +1,19 @@
-
-
 #include "mbr.h"
 
 
 void load_mbr() {
   char c;
+  printf(BOLDGREEN"[init semaphore disque]"RESET GREEN" semaphore initiation\n");
   semaphore_disque = calloc(1,sizeof(struct sem_s));
   sem_init(semaphore_disque,1,"semaphore disque");
-  
+  printf(BOLDGREEN"[init semaphore disque]"RESET GREEN" semaphore initiated\n");  
   if(sizeof(struct mbr_s) > SECTOR_SIZE) {
     printf("La taille du mbr est superieur à la taille d'un secteur. Ce disque ne peut pas être utilisé. Bye!\n");
     exit(EXIT_FAILURE);
   }
 
   /* lit le premier secteur et le met dans le mbr */
-  read_sector_n(0, 0, (unsigned char *)&mbr, sizeof(mbr));
+  read_sector(0, 0, (unsigned char *)&mbr);
 
   if(DEBUG) {
     printDebug(FNNAME, "");
@@ -36,7 +35,7 @@ void load_mbr() {
 }
 
 void save_mbr() {
-  write_sector_n(0, 0, (unsigned char *)&mbr, sizeof(struct mbr_s));
+  write_sector(0, 0, (unsigned char *)&mbr);
 }
 
 

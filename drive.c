@@ -65,7 +65,13 @@ void read_sector_n(unsigned int cylinder, unsigned int sector, unsigned char *bu
 void read_sector(unsigned int cylinder, unsigned int sector, unsigned char *buffer) {
 
 
-  create_ctx(16384,&read_sector_n,(void *)&cylinder);
+  struct parameters *str=calloc(1,sizeof(struct parameters));
+  str->cylinder = cylinder;
+  str->sector = sector;
+  str->buffer = buffer;
+  str->n = SECTOR_SIZE;
+
+  create_ctx(16384,&read_sector_n,str);
   /* read_sector_n(cylinder, sector, buffer, SECTOR_SIZE); */
 }
 
@@ -95,11 +101,15 @@ void write_sector_n(unsigned int cylinder, unsigned int sector, const unsigned c
 
 void write_sector(unsigned int cylinder, unsigned int sector, const unsigned char *buffer) {
 
-  /* void *args = {cylinder,sector,buffer,SECTOR_SIZE}; */
-  /* create_ctx(16384,&write_sector_n,args); */
-  /* start(); */
-  /* printf("done"); */
-  write_sector_n(cylinder, sector, buffer, SECTOR_SIZE);
+  struct parameters *str=calloc(1,sizeof(struct parameters));
+  str->cylinder = cylinder;
+  str->sector = sector;
+  str->buffer = buffer;
+  str->n = SECTOR_SIZE;
+
+  create_ctx(16384,&write_sector_n,str);
+
+  /* write_sector_n(cylinder, sector, buffer, SECTOR_SIZE); */
 }
 
 
@@ -116,6 +126,7 @@ static void go_to_sector(int cylinder, int sector) {
   }
 
   sem_down(semaphore_disque);
+  printf("go to : %d %d %d %d\n",(cylinder >> 8) & 0xFF,cylinder & 0xFF, (sector >> 8) & 0xFF,sector & 0xFF);
   _out(HDA_DATAREGS, (cylinder >> 8) & 0xFF);
   _out(HDA_DATAREGS + 1, cylinder & 0xFF);
   _out(HDA_DATAREGS + 2, (sector >> 8) & 0xFF);

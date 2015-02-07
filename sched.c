@@ -16,22 +16,16 @@ int init_ctx(struct ctx_s *ctx, int stack_size, func_t f, void *args){
 
 
 
-int create_ctx(int size, func_t f, void * args,...){
-  va_list ap;
-  int nb_args;
-  void* cur_arg = args;
+int create_ctx(int size, func_t f, void * args){
+
   struct ctx_s* new_ctx = (struct ctx_s*) malloc(sizeof(struct ctx_s));
 
 
   irq_disable();
 
-  assert(args);
-  va_start(ap,args);
-  for(nb_args = 0; cur_arg != NULL; nb_args++,cur_arg = va_arg(ap, void*));
-  
   assert(new_ctx);
 
-  if(init_ctx(new_ctx, size, f, args)){ /* error */ return 1; }
+  if(init_ctx(new_ctx, size, f, args )){ /* error */ return 1; }
 
   if(!ring_head){
     ring_head = new_ctx;
@@ -113,9 +107,11 @@ void switch_to_ctx(struct ctx_s *new_ctx){
 void yield(){
   if(!current_ctx){
     assert(ring_head);
+    _out(TIMER_ALARM, (0xFFFFFFFF - 32));
     switch_to_ctx(ring_head);
   }
   else{
+    _out(TIMER_ALARM, (0xFFFFFFFF - 32));
     switch_to_ctx(current_ctx->ctx_next);
   }
 }

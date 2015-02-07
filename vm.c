@@ -18,6 +18,7 @@
 #include "tools.h"
 #include "drive.h"
 
+
 /* ------------------------------
    command list
    ------------------------------------------------------------*/
@@ -266,8 +267,9 @@ main(int argc, char **argv)
 
   init_master();
   printf(BOLDGREEN"[mount sequence]"RESET GREEN" load mbr\n");
-
   load_mbr();
+  printf(BOLDGREEN"[mount sequence]"RESET GREEN" mbr loaded\n");
+
   /* mount(); */
   loop();
   /* abnormal end of dialog (cause EOF for xample) */
