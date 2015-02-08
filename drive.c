@@ -45,7 +45,7 @@ void format_sector(unsigned int cylinder, unsigned int sector, unsigned int nsec
   _out(HDA_DATAREGS + 4, (value >> 8) & 0xFF);
   _out(HDA_DATAREGS + 5, value & 0xFF);
   _out(HDA_CMDREG, CMD_FORMAT);
-  yield_disque();
+  my_sleep();
 }
 
 /* lit n nombre de secteur */
@@ -72,7 +72,7 @@ void read_sector_n(struct parameters *args) {
 
   _out(HDA_DATAREGS, 1 & 0xFF);
   _out(HDA_CMDREG, CMD_READ);
-  yield_disque();
+  my_sleep();
   for(i = 0; i < n; i++)
     MASTERBUFFER[i] = buffer[i];
 
@@ -124,7 +124,7 @@ void write_sector_n(struct parameters *args) {
 
   _out(HDA_CMDREG, CMD_WRITE);
 
-  yield_disque();
+  my_sleep();
   sem_up(semaphore_disque);
 
 }
@@ -163,7 +163,7 @@ static void go_to_sector(struct parameters *args) {
   _out(HDA_DATAREGS + 2, (args->sector >> 8) & 0xFF);
   _out(HDA_DATAREGS + 3, args->sector & 0xFF);
   _out(HDA_CMDREG, CMD_SEEK);
-  yield();
+  my_sleep();
   sem_up(semaphore_disque);
 }
 

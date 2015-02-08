@@ -89,7 +89,6 @@ void print_ctx(struct ctx_s *ctx);
 void start();
 void switch_to_ctx(struct ctx_s *new_ctx);
 void yield();
-void yield_disque();
 void my_sleep();
 void sem_init(struct sem_s *sem, unsigned int val, char* name);
 void sem_up(struct sem_s *sem);

@@ -254,7 +254,7 @@ main(int argc, char **argv)
   current_pwd = "/";
   boot();
   mount();
-  /* create_ctx(16380,&loop,NULL); */
+  create_ctx(16380,&loop,NULL,"loop");
   start();
   loop();
   /* abnormal end of dialog (cause EOF for xample) */

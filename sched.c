@@ -124,26 +124,20 @@ void yield(){
   }
 }
 
-void yield_disque(){
-  printf(BOLDWHITE"\nENTERING yield_disque()\n"BOLDWHITE);
+void my_sleep(){
+  printf(BOLDWHITE"\nENTERING my_sleep()\n"BOLDWHITE);
+
   if(!ctx_disque){
     assert(ring_head);
     print_ctx(ring_head);
     ctx_disque = ring_head;
     ring_head = ring_head->ctx_next;
     switch_to_ctx(ring_head);
+  }else{
+    ctx_disque->ctx_next = ring_head;
+    switch_to_ctx(ctx_disque);
+    
   }
-  else{
-    print_ctx(current_ctx);
-    switch_to_ctx(ring_head->ctx_next);
-  }
-
-}
-void my_sleep(){
-  printf(BOLDWHITE"\nENTERING my_sleep()\n"BOLDWHITE);
-  assert(ctx_disque);
-  print_ctx(ctx_disque);
-  switch_to_ctx(ctx_disque);
 }
 
 
