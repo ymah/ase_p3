@@ -31,6 +31,7 @@ typedef enum {CTX_RDY, CTX_EXQ, CTX_STP, CTX_END} state_e;
 
 
 struct ctx_s {
+  char *ctx_name;
   void* ctx_rsp;
   void* ctx_rbp;
   unsigned ctx_magic;
@@ -43,13 +44,18 @@ struct ctx_s {
   struct ctx_s* ctx_sem_next;
 };
 
-struct parameters{
+struct parameters_d{
   unsigned int cylinder;
   unsigned int sector;
   const unsigned char *buffer;
   int n;
 };
 
+struct parameters_m{
+  unsigned int cylinder;
+  unsigned int sector;
+
+};
 
 
 struct sem_s {
@@ -76,9 +82,10 @@ typedef struct object_s{
 object_t stack[N];
 
 
-int init_ctx(struct ctx_s *ctx, int stack_size, func_t f, void *args);
-int create_ctx(int size, func_t f, void * args);
+int init_ctx(struct ctx_s *ctx, int stack_size, func_t f, void *args,char * name);
+int create_ctx(int size, func_t f, void * args,char * name);
 void start_current_ctx();
+void print_ctx(struct ctx_s *ctx);
 void start();
 void switch_to_ctx(struct ctx_s *new_ctx);
 void yield();

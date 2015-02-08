@@ -1,8 +1,9 @@
 #include "sched.h"
 
-int init_ctx(struct ctx_s *ctx, int stack_size, func_t f, void *args){
+int init_ctx(struct ctx_s *ctx, int stack_size, func_t f, void *args,char *name){
   ctx->ctx_stack = (char*) malloc(stack_size);
   if ( ctx->ctx_stack == NULL) return 1;
+  ctx->ctx_name = name;
   ctx->ctx_state = CTX_RDY;
   ctx->ctx_size = stack_size;
   ctx->ctx_f = f;
@@ -15,8 +16,13 @@ int init_ctx(struct ctx_s *ctx, int stack_size, func_t f, void *args){
 }
 
 
+void print_ctx(struct ctx_s *ctx){
+  printf("launch %s\n",ctx->ctx_name);
+}
 
-int create_ctx(int size, func_t f, void * args){
+
+
+int create_ctx(int size, func_t f, void * args,char *name){
 
   struct ctx_s* new_ctx = (struct ctx_s*) malloc(sizeof(struct ctx_s));
 
@@ -25,7 +31,7 @@ int create_ctx(int size, func_t f, void * args){
 
   assert(new_ctx);
 
-  if(init_ctx(new_ctx, size, f, args )){ /* error */ return 1; }
+  if(init_ctx(new_ctx, size, f, args ,name)){ /* error */ return 1; }
 
   if(!ring_head){
     ring_head = new_ctx;
@@ -43,7 +49,7 @@ int create_ctx(int size, func_t f, void * args){
 
 void start_current_ctx(){
   current_ctx->ctx_state = CTX_EXQ;
-  (current_ctx->ctx_f)(current_ctx->ctx_arg);
+  (*(current_ctx->ctx_f))(current_ctx->ctx_arg);
   current_ctx->ctx_state = CTX_END;
   yield();
 }
@@ -85,7 +91,6 @@ void switch_to_ctx(struct ctx_s *new_ctx){
   }
   if(!current_ctx){
     return_ctx = (struct ctx_s*)malloc(sizeof(struct ctx_s));
-    printf("Save return context\n");
     __asm__ ("mov %%rsp, %0\n" :"=r"(return_ctx->ctx_rsp));
     __asm__ ("mov %%rbp, %0\n" :"=r"(return_ctx->ctx_rbp));
   }
@@ -105,12 +110,15 @@ void switch_to_ctx(struct ctx_s *new_ctx){
 
 
 void yield(){
+  printf(BOLDWHITE"\nENTERING yield()\n"BOLDWHITE);
   if(!current_ctx){
     assert(ring_head);
+    print_ctx(ring_head);
     _out(TIMER_ALARM, (0xFFFFFFFF - 32));
     switch_to_ctx(ring_head);
   }
   else{
+    print_ctx(current_ctx);
     _out(TIMER_ALARM, (0xFFFFFFFF - 32));
     switch_to_ctx(current_ctx->ctx_next);
   }
@@ -118,7 +126,9 @@ void yield(){
 
 
 void my_sleep(){
+  printf("test");
   assert(ctx_disque);
+  print_ctx(ctx_disque);
   switch_to_ctx(ctx_disque);
 }
 

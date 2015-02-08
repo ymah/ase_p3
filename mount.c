@@ -74,14 +74,17 @@ boot(){
   for(i=0; i<16; i++)
     IRQVECTOR[i] = emptyIT;
   init_context();
+  _out(TIMER_PARAM,0xC0);
   _out(TIMER_ALARM, (0xFFFFFFFF - 32));
+  status = _in(TIMER_CLOCK);
+
   IRQVECTOR[TIMER_IRQ] = yield;
   IRQVECTOR[HDA_IRQ] = my_sleep;
+
   /* Allows all IT */
   /* intialisation timer */
-  _out(TIMER_PARAM,0xC0);
   /* set timer alarm */
-  
+
   _mask(1);
   printf(BOLDGREEN"[boot sequence]"RESET GREEN" successful\n");
 

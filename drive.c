@@ -40,8 +40,7 @@ void format_sector(unsigned int cylinder, unsigned int sector, unsigned int nsec
   _out(HDA_DATAREGS + 4, (value >> 8) & 0xFF);
   _out(HDA_DATAREGS + 5, value & 0xFF);
   _out(HDA_CMDREG, CMD_FORMAT);
-  _sleep(HDA_IRQ);
-
+  yield();
 }
 
 /* lit n nombre de secteur */
@@ -65,19 +64,24 @@ void read_sector_n(unsigned int cylinder, unsigned int sector, unsigned char *bu
 void read_sector(unsigned int cylinder, unsigned int sector, unsigned char *buffer) {
 
 
-  struct parameters *str=calloc(1,sizeof(struct parameters));
+  struct parameters_d *str=calloc(1,sizeof(struct parameters_d));
   str->cylinder = cylinder;
   str->sector = sector;
   str->buffer = buffer;
   str->n = SECTOR_SIZE;
 
-  create_ctx(16384,&read_sector_n,str);
+  create_ctx(16384,&read_sector_n,(void *)str,"contexte lecture disque");
   /* read_sector_n(cylinder, sector, buffer, SECTOR_SIZE); */
 }
 
 void write_sector_n(unsigned int cylinder, unsigned int sector, const unsigned char *buffer, int n) {
 
   int i;
+  struct parameters_m *str;
+  str = calloc(1,sizeof(struct parameters_m));
+  str->cylinder = cylinder;
+  str->sector = sector;
+
   if(n > SECTOR_SIZE) {
     printf("Vous essayez de lire un nombre de secteur plus grand que le nombre de secteur dispo\n");
     exit(EXIT_FAILURE);
@@ -86,7 +90,8 @@ void write_sector_n(unsigned int cylinder, unsigned int sector, const unsigned c
 
   for(i = 0; i < SECTOR_SIZE; i++)
     MASTERBUFFER[i] = 0;
-  go_to_sector(cylinder, sector);
+
+  create_ctx(16384,&go_to_sector,str,"go to sector context");
   sem_down(semaphore_disque);
   _out(HDA_DATAREGS, 0);
   _out(HDA_DATAREGS+1, 1 & 0xFF);
@@ -101,13 +106,13 @@ void write_sector_n(unsigned int cylinder, unsigned int sector, const unsigned c
 
 void write_sector(unsigned int cylinder, unsigned int sector, const unsigned char *buffer) {
 
-  struct parameters *str=calloc(1,sizeof(struct parameters));
+  struct parameters_d *str=calloc(1,sizeof(struct parameters_d));
   str->cylinder = cylinder;
   str->sector = sector;
   str->buffer = buffer;
   str->n = SECTOR_SIZE;
 
-  create_ctx(16384,&write_sector_n,str);
+  create_ctx(16384,&write_sector_n,str,"contexte ecriture disque");
 
   /* write_sector_n(cylinder, sector, buffer, SECTOR_SIZE); */
 }
@@ -132,7 +137,7 @@ static void go_to_sector(int cylinder, int sector) {
   _out(HDA_DATAREGS + 2, (sector >> 8) & 0xFF);
   _out(HDA_DATAREGS + 3, sector & 0xFF);
   _out(HDA_CMDREG, CMD_SEEK);
-  _sleep(HDA_IRQ);
+  yield();
   sem_up(semaphore_disque);
 }
 
