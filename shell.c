@@ -248,7 +248,7 @@ main(int argc, char **argv)
   /* dialog with user */ 
   /* init_master(); */
   /* load_mbr(); */
-  
+
 
   in_current_pwd = inumber_of_path("/");
   current_pwd = "/";
@@ -256,6 +256,7 @@ main(int argc, char **argv)
   mount();
   /* create_ctx(16380,&loop,NULL); */
   start();
+  loop();
   /* abnormal end of dialog (cause EOF for xample) */
   do_xit();
   umount();

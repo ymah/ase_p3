@@ -36,7 +36,7 @@ struct ctx_s {
   void* ctx_rbp;
   unsigned ctx_magic;
   func_t* ctx_f;
-  void* ctx_arg;
+  struct parameters* ctx_arg;
   state_e ctx_state;
   char* ctx_stack; /* adresse la plus basse de la pile */
   unsigned ctx_size;
@@ -44,7 +44,7 @@ struct ctx_s {
   struct ctx_s* ctx_sem_next;
 };
 
-struct parameters_d{
+struct parameters{
   unsigned int cylinder;
   unsigned int sector;
   const unsigned char *buffer;
@@ -82,13 +82,14 @@ typedef struct object_s{
 object_t stack[N];
 
 
-int init_ctx(struct ctx_s *ctx, int stack_size, func_t f, void *args,char * name);
-int create_ctx(int size, func_t f, void * args,char * name);
+int init_ctx(struct ctx_s *ctx, int stack_size, func_t f, struct parameters *args,char * name);
+int create_ctx(int size, func_t f, struct parameters * args,char * name);
 void start_current_ctx();
 void print_ctx(struct ctx_s *ctx);
 void start();
 void switch_to_ctx(struct ctx_s *new_ctx);
 void yield();
+void yield_disque();
 void my_sleep();
 void sem_init(struct sem_s *sem, unsigned int val, char* name);
 void sem_up(struct sem_s *sem);

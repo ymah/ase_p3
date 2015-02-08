@@ -12,6 +12,8 @@ int cylinder_of_bloc(int vol, int b) {
 
 void read_bloc_n(unsigned int vol, unsigned int nbloc, unsigned char *buffer, unsigned int size) {
   int cylinder, sector;
+  struct parameters args;
+
   /* si on essait de lire un volume qui n'a pas été initialise */
   if(DEBUG) {
     printDebug(FNNAME, "");
@@ -31,7 +33,12 @@ void read_bloc_n(unsigned int vol, unsigned int nbloc, unsigned char *buffer, un
   sector = sector_of_bloc(vol, nbloc);
   if(DEBUG)
     printf(BOLDGREEN"[read bloc n]"RESET GREEN" cylinder = %d -- sector = %d\n"RESET, cylinder, sector);
-  read_sector_n(cylinder, sector, buffer, size);
+
+  args.cylinder = cylinder;
+  args.sector = sector;
+  args.buffer = buffer;
+  args.n = size;
+  read_sector_n(&args);
 
 }
 
@@ -44,6 +51,7 @@ void read_bloc(unsigned int vol, unsigned int nbloc, unsigned char *buffer) {
 
 void write_bloc_n(unsigned int vol, unsigned int nbloc, const unsigned char *buffer, unsigned int size) {
   int cylinder, sector;
+  struct parameters args;
 
   if(DEBUG) {
     printDebug(FNNAME, "");
@@ -63,7 +71,14 @@ void write_bloc_n(unsigned int vol, unsigned int nbloc, const unsigned char *buf
   sector = sector_of_bloc(vol, nbloc);
   if(DEBUG)
     printf(BOLDGREEN"[write bloc n]"RESET GREEN" cylinder = %d -- sector = %d\n"RESET, cylinder, sector);
-  write_sector_n(cylinder, sector, buffer, size);
+
+  args.cylinder = cylinder;
+  args.sector = sector;
+  args.buffer = buffer;
+  args.n = size;
+  read_sector_n(&args);
+
+  write_sector_n(&args);
 
 
 }

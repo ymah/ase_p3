@@ -1,7 +1,7 @@
 #include "drive.h"
 
 
-static void go_to_sector(int cylindre, int sector);
+static void go_to_sector(struct parameters *args);
 
 /* utilise pour initialiser le hardware */
 static void
@@ -32,7 +32,12 @@ void init_master() {
 
 void format_sector(unsigned int cylinder, unsigned int sector, unsigned int nsector, unsigned int value) {
 
-  go_to_sector(cylinder, sector);
+  struct parameters args;
+  args.cylinder = cylinder;
+  args.sector = sector;
+  args.n = nsector;
+
+  go_to_sector(&args);
   _out(HDA_DATAREGS, (nsector >> 8) & 0xFF);
   _out(HDA_DATAREGS + 1, nsector & 0xFF);
   _out(HDA_DATAREGS + 2, (value >> 24) & 0xFF);
@@ -40,47 +45,66 @@ void format_sector(unsigned int cylinder, unsigned int sector, unsigned int nsec
   _out(HDA_DATAREGS + 4, (value >> 8) & 0xFF);
   _out(HDA_DATAREGS + 5, value & 0xFF);
   _out(HDA_CMDREG, CMD_FORMAT);
-  yield();
+  yield_disque();
 }
 
 /* lit n nombre de secteur */
-void read_sector_n(unsigned int cylinder, unsigned int sector, unsigned char *buffer, int n) {
+void read_sector_n(struct parameters *args) {
+
+
+  unsigned int cylinder;
+  unsigned int sector;
+  const unsigned char *buffer;
+  int n,i;
+
+  cylinder=args->cylinder;
+  sector = args->sector;
+  buffer = args->buffer;
+  n = args->n;
+
+
   if(n > SECTOR_SIZE) {
     printf("Vous essayez de lire un nombre de secteur plus grand que le nombre de secteur dispo\n");
     exit(EXIT_FAILURE);
   }
 
-  go_to_sector(cylinder, sector);
+  create_ctx(16384,&go_to_sector,args,"go to sector context");
 
   _out(HDA_DATAREGS, 1 & 0xFF);
   _out(HDA_CMDREG, CMD_READ);
-  yield();
-  memcpy(buffer,MASTERBUFFER,n);
+  yield_disque();
+  for(i = 0; i < n; i++)
+    MASTERBUFFER[i] = buffer[i];
 
 
 }
 
 
-void read_sector(unsigned int cylinder, unsigned int sector, unsigned char *buffer) {
+void read_sector(unsigned int cylinder, unsigned int sector, const unsigned char *buffer) {
 
 
-  struct parameters_d *str=calloc(1,sizeof(struct parameters_d));
+  struct parameters *str=calloc(1,sizeof(struct parameters));
   str->cylinder = cylinder;
   str->sector = sector;
   str->buffer = buffer;
   str->n = SECTOR_SIZE;
 
-  create_ctx(16384,&read_sector_n,(void *)str,"contexte lecture disque");
+  create_ctx(16384,&read_sector_n,str,"contexte lecture disque");
   /* read_sector_n(cylinder, sector, buffer, SECTOR_SIZE); */
 }
 
-void write_sector_n(unsigned int cylinder, unsigned int sector, const unsigned char *buffer, int n) {
+void write_sector_n(struct parameters *args) {
 
   int i;
-  struct parameters_m *str;
-  str = calloc(1,sizeof(struct parameters_m));
-  str->cylinder = cylinder;
-  str->sector = sector;
+  unsigned int cylinder;
+  unsigned int sector;
+  const char *buffer;
+  int n;
+
+  cylinder=args->cylinder;
+  sector = args->sector;
+  buffer = args->buffer;
+  n = args->n;
 
   if(n > SECTOR_SIZE) {
     printf("Vous essayez de lire un nombre de secteur plus grand que le nombre de secteur dispo\n");
@@ -91,14 +115,16 @@ void write_sector_n(unsigned int cylinder, unsigned int sector, const unsigned c
   for(i = 0; i < SECTOR_SIZE; i++)
     MASTERBUFFER[i] = 0;
 
-  create_ctx(16384,&go_to_sector,str,"go to sector context");
+  create_ctx(16384,&go_to_sector,args,"go to sector context");
   sem_down(semaphore_disque);
   _out(HDA_DATAREGS, 0);
   _out(HDA_DATAREGS+1, 1 & 0xFF);
-  memcpy(MASTERBUFFER,buffer,n);
+  for(i = 0; i < n; i++)
+    MASTERBUFFER[i] = buffer[i];
+
   _out(HDA_CMDREG, CMD_WRITE);
 
-  yield();
+  yield_disque();
   sem_up(semaphore_disque);
 
 }
@@ -106,7 +132,7 @@ void write_sector_n(unsigned int cylinder, unsigned int sector, const unsigned c
 
 void write_sector(unsigned int cylinder, unsigned int sector, const unsigned char *buffer) {
 
-  struct parameters_d *str=calloc(1,sizeof(struct parameters_d));
+  struct parameters *str=calloc(1,sizeof(struct parameters));
   str->cylinder = cylinder;
   str->sector = sector;
   str->buffer = buffer;
@@ -119,23 +145,23 @@ void write_sector(unsigned int cylinder, unsigned int sector, const unsigned cha
 
 
 
-static void go_to_sector(int cylinder, int sector) {
+static void go_to_sector(struct parameters *args) {
   /* on verifie que les valeures passees en parametres sont les bonnes */
-  if(cylinder > MAX_CYLINDER) {
+  if(args->cylinder > MAX_CYLINDER) {
     printf("Appel de la fonction go_to_sector avec un cylinder superieur a MAX_CYLINDER\n");
     exit(EXIT_FAILURE);
   }
-  if(sector > MAX_SECTOR) {
+  if(args->sector > MAX_SECTOR) {
     printf("Appel de la fonction go_to_sector avec un cylinder superieur a MAX_CYLINDER\n");
     exit(EXIT_FAILURE);
   }
 
   sem_down(semaphore_disque);
-  printf("go to : %d %d %d %d\n",(cylinder >> 8) & 0xFF,cylinder & 0xFF, (sector >> 8) & 0xFF,sector & 0xFF);
-  _out(HDA_DATAREGS, (cylinder >> 8) & 0xFF);
-  _out(HDA_DATAREGS + 1, cylinder & 0xFF);
-  _out(HDA_DATAREGS + 2, (sector >> 8) & 0xFF);
-  _out(HDA_DATAREGS + 3, sector & 0xFF);
+  printf("go to : %d %d %d %d\n",(args->cylinder >> 8) & 0xFF,args->cylinder & 0xFF, (args->sector >> 8) & 0xFF,args->sector & 0xFF);
+  _out(HDA_DATAREGS, (args->cylinder >> 8) & 0xFF);
+  _out(HDA_DATAREGS + 1, args->cylinder & 0xFF);
+  _out(HDA_DATAREGS + 2, (args->sector >> 8) & 0xFF);
+  _out(HDA_DATAREGS + 3, args->sector & 0xFF);
   _out(HDA_CMDREG, CMD_SEEK);
   yield();
   sem_up(semaphore_disque);
