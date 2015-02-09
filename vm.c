@@ -265,11 +265,10 @@ main(int argc, char **argv)
 
 
   /* init_master(); */
+
   boot();
   mount();
-  
   create_ctx(16320,&loop,(struct parameters*) 0,"loop");
-
   printf("\n");
   /* loop(); */
 
