@@ -69,6 +69,8 @@ struct ctx_s* ring_head;
 struct ctx_s* return_ctx;
 struct sem_s mutex, vide, plein;
 struct ctx_s* ctx_disque;
+unsigned int nb_ctx;
+
 
 typedef struct object_s{
 	int value;

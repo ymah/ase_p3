@@ -260,18 +260,24 @@ int
 main(int argc, char **argv)
 {
     /* dialog with user */ 
-  if(DEBUG)
-    printf(BOLDGREEN"[mount sequence]"RESET GREEN" init master\n");
+  /* if(DEBUG) */
+  /*   printf(BOLDGREEN"[mount sequence]"RESET GREEN" init master\n"); */
 
 
-  init_master();
-  printf(BOLDGREEN"[mount sequence]"RESET GREEN" load mbr\n");
-  load_mbr();
-  printf(BOLDGREEN"[mount sequence]"RESET GREEN" mbr loaded\n");
+  /* init_master(); */
+  boot();
+  mount();
+  start();
+  create_ctx(16320,&loop,(struct parameters*) 0,"loop");
+
+  printf("\n");
+  /* loop(); */
+
 
   /* mount(); */
-  loop();
+  /* loop(); */
   /* abnormal end of dialog (cause EOF for xample) */
+
   do_xit();
   /* make gcc -W happy */
   exit(EXIT_SUCCESS);

@@ -52,6 +52,7 @@ void
 init_context(){
   printf(BOLDGREEN"[scheddule sequence]"RESET GREEN"\n");
   next_index=0;
+  nb_ctx = 0;
   current_ctx= (struct ctx_s *) 0;
   ring_head = (struct ctx_s *) 0;
   ctx_disque = (struct ctx_s *) 0;
@@ -100,6 +101,7 @@ mount()
   load_mbr();
   printf(BOLDGREEN"[mount sequence]"RESET GREEN" load current volume\n");
   load_current_volume();
+
 }
 
 

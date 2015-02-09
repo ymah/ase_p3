@@ -68,7 +68,7 @@ void read_sector_n(struct parameters *args) {
     exit(EXIT_FAILURE);
   }
 
-  create_ctx(16384,&go_to_sector,args,"go to sector context");
+  create_ctx(16385,&go_to_sector,args,"go to sector context");
 
   _out(HDA_DATAREGS, 1 & 0xFF);
   _out(HDA_CMDREG, CMD_READ);
@@ -89,7 +89,7 @@ void read_sector(unsigned int cylinder, unsigned int sector, const unsigned char
   str->buffer = buffer;
   str->n = SECTOR_SIZE;
 
-  create_ctx(16384,&read_sector_n,str,"contexte lecture disque");
+  create_ctx(16386,&read_sector_n,str,"contexte lecture disque");
   /* read_sector_n(cylinder, sector, buffer, SECTOR_SIZE); */
 }
 
@@ -156,15 +156,15 @@ static void go_to_sector(struct parameters *args) {
     exit(EXIT_FAILURE);
   }
 
-  sem_down(semaphore_disque);
-  printf("go to : %d %d %d %d\n",(args->cylinder >> 8) & 0xFF,args->cylinder & 0xFF, (args->sector >> 8) & 0xFF,args->sector & 0xFF);
+
+  /* printf("go to : %d %d %d %d\n",(args->cylinder >> 8) & 0xFF,args->cylinder & 0xFF, (args->sector >> 8) & 0xFF,args->sector & 0xFF); */
   _out(HDA_DATAREGS, (args->cylinder >> 8) & 0xFF);
   _out(HDA_DATAREGS + 1, args->cylinder & 0xFF);
   _out(HDA_DATAREGS + 2, (args->sector >> 8) & 0xFF);
   _out(HDA_DATAREGS + 3, args->sector & 0xFF);
   _out(HDA_CMDREG, CMD_SEEK);
   my_sleep();
-  sem_up(semaphore_disque);
+
 }
 
 void check_hda() {

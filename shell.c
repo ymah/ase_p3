@@ -256,7 +256,6 @@ main(int argc, char **argv)
   mount();
   create_ctx(16380,&loop,NULL,"loop");
   start();
-  loop();
   /* abnormal end of dialog (cause EOF for xample) */
   do_xit();
   umount();

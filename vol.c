@@ -18,16 +18,16 @@ void read_bloc_n(unsigned int vol, unsigned int nbloc, unsigned char *buffer, un
   if(DEBUG) {
     printDebug(FNNAME, "");
     printf("vol = %d -- mbr.mbr_n_vol = %d -- nbloc = %d\n", vol, mbr.mbr_n_vol, nbloc);
-    
+
   }
-  if(vol + 1 > mbr.mbr_n_vol) {
-    printf(BOLDRED "Ce volume n'existe pas sur le disque\n" RESET);    
+  if(vol > mbr.mbr_n_vol) {
+    printf(BOLDRED "Ce volume n'existe pas sur le disque\n" RESET);
     exit(EXIT_FAILURE);
   }
   /* si on essait de lire un numero de bloc qui est plus grand que le nombre de bloc alloué dans la partition */
   if(nbloc > mbr.mbr_vol[vol].vol_n_sector) {
     printf(BOLDRED "Vous essayé de lire un nombre de bloque trop grand. Bye!\n" RESET);
-    exit(EXIT_FAILURE); 
+    exit(EXIT_FAILURE);
   }
   cylinder = cylinder_of_bloc(vol, nbloc);
   sector = sector_of_bloc(vol, nbloc);

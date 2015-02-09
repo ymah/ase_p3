@@ -23,10 +23,10 @@ main(int argc, char *argv[]) {
   if(DEBUG)
     printDebug(FNNAME, "init master");
 
-  init_master();
+  /* init_master(); */
   if(DEBUG)
     printDebug(FNNAME, "load mbr");
-  boot();
+  /* boot(); */
   mount();
 
   if(DEBUG)

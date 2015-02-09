@@ -1,6 +1,7 @@
 #include "sched.h"
 
 int init_ctx(struct ctx_s *ctx, int stack_size, func_t f,struct parameters * args,char *name){
+  printf(BOLDGREEN"\n creating %s ctx\n"BOLDGREEN,name);
   ctx->ctx_stack = (char*) malloc(stack_size);
   if ( ctx->ctx_stack == NULL) return 1;
   ctx->ctx_name = name;
@@ -8,10 +9,11 @@ int init_ctx(struct ctx_s *ctx, int stack_size, func_t f,struct parameters * arg
   ctx->ctx_size = stack_size;
   ctx->ctx_f = f;
   ctx->ctx_arg = args;
-  ctx->ctx_rsp = &(ctx->ctx_stack[stack_size-16]);
+  ctx->ctx_rsp = &(ctx->ctx_stack[stack_size-8]);
   ctx->ctx_rbp = ctx->ctx_rsp;
   ctx->ctx_magic = CTX_MAGIC;
   ctx->ctx_next = ctx;
+  nb_ctx++;
   return 0;
 }
 
@@ -32,7 +34,7 @@ int create_ctx(int size, func_t f, struct parameters * args,char *name){
   assert(new_ctx);
 
   if(init_ctx(new_ctx, size, f, args ,name)){ /* error */ return 1; }
-
+  
   if(!ring_head){
     ring_head = new_ctx;
     new_ctx->ctx_next = new_ctx;
@@ -49,7 +51,7 @@ int create_ctx(int size, func_t f, struct parameters * args,char *name){
 
 void start_current_ctx(){
   current_ctx->ctx_state = CTX_EXQ;
-  (*(current_ctx->ctx_f))(current_ctx->ctx_arg);
+  (*current_ctx->ctx_f)(current_ctx->ctx_arg);
   current_ctx->ctx_state = CTX_END;
   yield();
 }
@@ -67,9 +69,10 @@ void switch_to_ctx(struct ctx_s *new_ctx){
   struct ctx_s *ctx = new_ctx;
   assert(ctx->ctx_magic == CTX_MAGIC);
   irq_disable();
+
   while(ctx->ctx_state == CTX_END || ctx->ctx_state == CTX_STP){
-    if(ctx->ctx_state == CTX_END) printf("Finished context encountered\n");
-    if(ctx->ctx_state == CTX_STP) printf("Frozen context encountered\n");
+    if(ctx->ctx_state == CTX_END) printf("Finished context %s encountered\n",new_ctx->ctx_name);
+    if(ctx->ctx_state == CTX_STP) printf("Frozen context %s encountered\n",new_ctx->ctx_name);
     if(ctx == ctx->ctx_next){
       /* return to main */
       free(ctx->ctx_stack);
@@ -81,6 +84,7 @@ void switch_to_ctx(struct ctx_s *new_ctx){
     }
     else {
       struct ctx_s *next = ctx->ctx_next;
+      print_ctx(next);
       if (ctx->ctx_state == CTX_END){
 	current_ctx->ctx_next = next;
 	free(ctx->ctx_stack);
@@ -103,6 +107,7 @@ void switch_to_ctx(struct ctx_s *new_ctx){
   __asm__ ("mov %0, %%rbp\n" ::"r"(current_ctx->ctx_rbp));
   irq_enable();
   if(current_ctx->ctx_state == CTX_RDY){
+
     start_current_ctx();
   }
 }
@@ -113,13 +118,16 @@ void yield(){
   printf(BOLDWHITE"\nENTERING yield()\n"BOLDWHITE);
   if(!current_ctx){
     assert(ring_head);
-    print_ctx(ring_head);
     _out(TIMER_ALARM, (0xFFFFFFFF - 32));
+    printf("\nswitching to ");
+    print_ctx(ring_head);
     switch_to_ctx(ring_head);
+
   }
   else{
-    print_ctx(current_ctx);
     _out(TIMER_ALARM, (0xFFFFFFFF - 32));
+    printf("\nswitching to ");
+    print_ctx(current_ctx->ctx_next);
     switch_to_ctx(current_ctx->ctx_next);
   }
 }
@@ -128,15 +136,21 @@ void my_sleep(){
   printf(BOLDWHITE"\nENTERING my_sleep()\n"BOLDWHITE);
 
   if(!ctx_disque){
-    assert(ring_head);
+    printf("\n I- switching to ");
     print_ctx(ring_head);
+    assert(ring_head);
+    /* print_ctx(ring_head); */
     ctx_disque = ring_head;
     ring_head = ring_head->ctx_next;
+    _out(TIMER_ALARM, (0xFFFFFFFF - 32));
     switch_to_ctx(ring_head);
   }else{
+
+    printf("\n II- switching to ");
+    print_ctx(ctx_disque);
     ctx_disque->ctx_next = ring_head;
+    _out(TIMER_ALARM, (0xFFFFFFFF - 32));
     switch_to_ctx(ctx_disque);
-    
   }
 }
 
