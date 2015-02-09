@@ -34,15 +34,19 @@ int create_ctx(int size, func_t f, struct parameters * args,char *name){
   assert(new_ctx);
 
   if(init_ctx(new_ctx, size, f, args ,name)){ /* error */ return 1; }
-  
+
   if(!ring_head){
+
     ring_head = new_ctx;
-    new_ctx->ctx_next = new_ctx;
-  }
-  else {
-    new_ctx->ctx_next = ring_head->ctx_next;
     ring_head->ctx_next = new_ctx;
   }
+  else {
+    /* new_ctx->ctx_next = ring_head->ctx_next; */
+    /* ring_head->ctx_next = new_ctx; */
+    ring_head->ctx_next = new_ctx;
+    new_ctx->ctx_next = ring_head;
+    ring_head = new_ctx;
+   }
   irq_enable();
   return 0;
 }
@@ -119,14 +123,14 @@ void yield(){
   if(!current_ctx){
     assert(ring_head);
     _out(TIMER_ALARM, (0xFFFFFFFF - 32));
-    printf("\nswitching to ");
+    printf("\n I- switching to ");
     print_ctx(ring_head);
     switch_to_ctx(ring_head);
 
   }
   else{
     _out(TIMER_ALARM, (0xFFFFFFFF - 32));
-    printf("\nswitching to ");
+    printf("\n II- switching to ");
     print_ctx(current_ctx->ctx_next);
     switch_to_ctx(current_ctx->ctx_next);
   }

@@ -267,7 +267,7 @@ main(int argc, char **argv)
   /* init_master(); */
   boot();
   mount();
-  start();
+  
   create_ctx(16320,&loop,(struct parameters*) 0,"loop");
 
   printf("\n");
