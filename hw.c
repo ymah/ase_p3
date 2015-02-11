@@ -4,8 +4,12 @@
 
 
 void irq_enable(){
-  _mask(0);
+
+  _mask(1);
+  enable_irq = 1;
 }
 void irq_disable(){
-  _mask(HDA_IRQ+1);
+
+  _mask(16);
+  enable_irq = 0;
 }

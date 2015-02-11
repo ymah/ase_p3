@@ -50,15 +50,23 @@ emptyIT()
    ------------------------------------------------------------*/
 void
 init_context(){
-  printf(BOLDGREEN"[scheddule sequence]"RESET GREEN"\n");
+  printf(BOLDGREEN"[scheddule sequence]"RESET GREEN"\n"RESET);
+  semaphore_disque = (struct sem_s *)malloc(sizeof(struct sem_s));
+  sem_init(semaphore_disque,1,"semaphore_disque");
+
   next_index=0;
   nb_ctx = 0;
   current_ctx= (struct ctx_s *) 0;
   ring_head = (struct ctx_s *) 0;
   ctx_disque = (struct ctx_s *) 0;
-  printf(BOLDGREEN"[scheddule sequence successful]"RESET GREEN"\n");
+  printf(BOLDGREEN"[scheddule sequence] successful"RESET GREEN"\n");
 }
 
+
+
+void toto(){
+  printf("\ncoucou c'est mah\n");
+}
 
 void
 boot(){
@@ -72,16 +80,17 @@ boot(){
   status = init_hardware(hw_config);
   ffatal(status, "error in hardware initialization with %s\n", hw_config);
   /* Interrupt handlers */
-  for(i=0; i<16; i++)
-    IRQVECTOR[i] = emptyIT;
+  irq_disable();
+  for(i=0;i<16;i++)
+    IRQVECTOR[i] = &emptyIT;
+
   init_context();
-  _out(TIMER_PARAM,0xC0);
-  _out(TIMER_ALARM, (0xFFFFFFFF - 32));
-  status = _in(TIMER_CLOCK);
+  _out(TIMER_PARAM, 0xC0);
+  _out(TIMER_ALARM, (0xFFFFFFFF - 1000));
 
-  IRQVECTOR[TIMER_IRQ] = yield;
-  IRQVECTOR[HDA_IRQ] = my_sleep;
-
+  IRQVECTOR[TIMER_IRQ] = &yield;
+  IRQVECTOR[HDA_IRQ] = &reset_ctx_disque;
+  irq_enable();
   /* Allows all IT */
   /* intialisation timer */
   /* set timer alarm */
@@ -113,5 +122,3 @@ umount()
 
   /* bye */
 }
- 
-

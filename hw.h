@@ -25,10 +25,10 @@
 #define TIMER_PARAM 0xF4
 #define TIMER_ALARM 0xF8
 #define TIMER_IRQ 2
-#define TIMER_TICKS 1
+#define TIMER_TICKS 8
 
 
-
+unsigned int enable_irq;
 
 void irq_enable();
 void irq_disable();

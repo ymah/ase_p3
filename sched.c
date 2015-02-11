@@ -1,6 +1,8 @@
 #include "sched.h"
 
 int init_ctx(struct ctx_s *ctx, int stack_size, func_t f,struct parameters * args,char *name){
+
+
   ctx->ctx_stack = (char*) malloc(stack_size);
   if ( ctx->ctx_stack == NULL) return 1;
   ctx->ctx_name = name;
@@ -13,7 +15,7 @@ int init_ctx(struct ctx_s *ctx, int stack_size, func_t f,struct parameters * arg
   ctx->ctx_magic = CTX_MAGIC;
   ctx->ctx_next = ctx;
   nb_ctx++;
-  printf(BOLDGREEN"\n %d ) creating ctx %s\n"RESET,nb_ctx,name);
+  printf(BOLDBLUE"\n%d ) creating ctx %s\n"RESET,nb_ctx,name);
   return 0;
 }
 
@@ -23,13 +25,12 @@ void print_ctx(struct ctx_s *ctx){
 }
 
 
-
 int create_ctx(int size, func_t f, struct parameters * args,char *name){
 
   struct ctx_s* new_ctx = (struct ctx_s*) malloc(sizeof(struct ctx_s));
 
-
   irq_disable();
+
 
   assert(new_ctx);
 
@@ -56,14 +57,33 @@ int create_ctx(int size, func_t f, struct parameters * args,char *name){
 
 
 void start_current_ctx(){
+
   current_ctx->ctx_state = CTX_EXQ;
   (*current_ctx->ctx_f)(current_ctx->ctx_arg);
-
   current_ctx->ctx_state = CTX_END;
+  del_ctx(current_ctx);
   yield();
 }
 
-
+void del_ctx(struct ctx_s *ctx){
+  irq_disable();
+  printf(RED"Deleting : "RESET);
+  print_ctx(ctx);
+  if(!ctx)
+    return ;
+  if(ctx->ctx_next == ctx){
+    free(ctx);
+    ctx = NULL;
+  }else{
+    struct ctx_s *suivant = ctx->ctx_next;
+    struct ctx_s *precedent = ctx;
+    while(precedent->ctx_next != ctx )
+      precedent = precedent->ctx_next;
+    precedent->ctx_next = suivant;
+    ctx = suivant;
+  }
+  irq_enable();
+}
 
 void start(){
   printf("Entering in start for schedule");
@@ -73,113 +93,93 @@ void start(){
 
 
 void switch_to_ctx(struct ctx_s *new_ctx){
-  struct ctx_s *ctx = new_ctx;
-  assert(ctx->ctx_magic == CTX_MAGIC);
-  irq_disable();
-  while(ctx->ctx_state == CTX_END || ctx->ctx_state == CTX_STP){
-    if(ctx->ctx_state == CTX_END) printf("Finished context %s encountered\n",new_ctx->ctx_name);
-    if(ctx->ctx_state == CTX_STP) printf("Frozen context %s encountered\n",new_ctx->ctx_name);
-    if(ctx == ctx->ctx_next){
-      /* return to main */
-      free(ctx->ctx_stack);
-      free(ctx);
-      /* current_ctx= (struct ctx_s *) 0; */
-      /* ring_head = (struct ctx_s *) 0; */
-      /* ctx_disque = (struct ctx_s *) 0; */
-      printf("Return to main\n");
-      __asm__ ("mov %0, %%rbp\n" ::"r"(return_ctx->ctx_rsp));
-      __asm__ ("mov %0, %%rbp\n" ::"r"(return_ctx->ctx_rbp));
-      return;
-    }
-    else {
-      struct ctx_s *next = ctx->ctx_next;
-      printf("\ntoto\n");
-      if (ctx->ctx_state == CTX_END){
-	current_ctx->ctx_next = next;
-	free(ctx->ctx_stack);
-	free(ctx);
-      }
-      ctx = next;
-    }
-  }
+  assert(new_ctx->ctx_magic == CTX_MAGIC);
   if(!current_ctx){
     return_ctx = (struct ctx_s*)malloc(sizeof(struct ctx_s));
     __asm__ ("mov %%rsp, %0\n" :"=r"(return_ctx->ctx_rsp));
     __asm__ ("mov %%rbp, %0\n" :"=r"(return_ctx->ctx_rbp));
+    return;
   }
   else{
     __asm__ ("mov %%rsp, %0\n" :"=r"(current_ctx->ctx_rsp));
-    __asm__ ("mov %%rbp, %0\n" :"=r"(current_ctx->ctx_rbp)); 
+    __asm__ ("mov %%rbp, %0\n" :"=r"(current_ctx->ctx_rbp));
   }
-  current_ctx = ctx;
+
+  current_ctx = new_ctx;
   __asm__ ("mov %0, %%rsp\n" ::"r"(current_ctx->ctx_rsp));
   __asm__ ("mov %0, %%rbp\n" ::"r"(current_ctx->ctx_rbp));
   irq_enable();
   if(current_ctx->ctx_state == CTX_RDY){
-
     start_current_ctx();
   }
+
 }
 
 
 
 void yield(){
-  printf("1\n");
-  print_ctx(ring_head->ctx_next);
-  printf("\n");
 
-  printf(BOLDWHITE"\nENTERING yield()\n"BOLDWHITE);
+  int status;
+  status = _in(TIMER_ALARM);
+
+  printf(BOLDCYAN"\nENTERING yield() with timer at %d\n"RESET,status);
+  _out(TIMER_ALARM, (0xFFFFFFFF - 1000));
+  irq_disable();
+
   if(!current_ctx){
     assert(ring_head);
     printf("\n yield : I- switching to ");
     print_ctx(ring_head);
-    _out(TIMER_ALARM, (0xFFFFFFFF - 32));
     switch_to_ctx(ring_head);
-
   }
   else{
 
+    struct ctx_s *ctx;
+    ctx = current_ctx;
+    while(ctx->ctx_state == CTX_STP || ctx->ctx_state == CTX_END){
+      if(ctx == ring_head)
+        break;
+      if(ctx == ctx->ctx_next)
+        break;
+      ctx = ctx->ctx_next;
+
+    }
+    if(ctx == ctx->ctx_next){
+      del_ctx(ctx);
+      switch_to_ctx(return_ctx);
+    }
+    current_ctx = ctx;
     printf("\n yield : II- switching to ");
-    print_ctx(current_ctx->ctx_next);
-    _out(TIMER_ALARM, (0xFFFFFFFF - 32));
-    switch_to_ctx(current_ctx->ctx_next);
+    print_ctx(ctx);
+    switch_to_ctx(ctx);
   }
 }
 
+
+
+void reset_ctx_disque(){
+  irq_disable();
+  printf(BOLDMAGENTA"\nENTERING reset_ctx_disque()\n"RESET);  
+  printf("\nReset_ctx_disque : Le ctx qui a reçu l'IRQ :  ");
+  print_ctx(ctx_disque);
+  ctx_disque->ctx_next = current_ctx;
+  current_ctx = ctx_disque;
+  current_ctx->ctx_state = CTX_EXQ;
+  yield();
+}
+
+
 void my_sleep(){
-  
-  printf("2\n");
-  print_ctx(ring_head->ctx_next);
-  printf("\n");
-printf(BOLDWHITE"\nENTERING my_sleep()\n"BOLDWHITE);  
+  /* assert(ctx_disque == (struct ctx_s *) 0); */
 
-  if(!ctx_disque){
-    printf("\n my_sleep : I- switching to ");
-    print_ctx(ring_head);
+  printf(BOLDYELLOW"\nENTERING my_sleep()\n"RESET);
+  printf("\nMy_sleep : le ctx demandeur :  ");
+  print_ctx(current_ctx);
+  ctx_disque = current_ctx;
+  current_ctx->ctx_state = CTX_STP;
+  current_ctx = current_ctx->ctx_next;
 
-    assert(ring_head);
-
-    ctx_disque = ring_head;
-    ring_head = ring_head->ctx_next;
-    _out(TIMER_ALARM, (0xFFFFFFFF - 32));
-
-    switch_to_ctx(ring_head);
-
-  }else{
-
-    struct ctx_s *tmp;
-    tmp = ring_head;
-    printf("\n II- my_sleep : switching to ");
-    print_ctx(ctx_disque);
-
-    ring_head = ctx_disque;
-    ring_head->ctx_next = tmp;
-
-    _out(TIMER_ALARM, (0xFFFFFFFF - 32));
-
-    switch_to_ctx(ctx_disque);
-  }
-
+  yield();
 }
 
 
@@ -201,7 +201,6 @@ void debloquer(struct sem_s *sem){
   ctx->ctx_state = CTX_EXQ;
   sem->sem_head=ctx->ctx_sem_next;
   irq_enable();
-  /*	switch_to_ctx(ctx); */
 }
 
 
@@ -211,12 +210,13 @@ void sem_init(struct sem_s *sem, unsigned int val, char* name){
   sem->sem_cpt = val;
   sem->sem_head = NULL;
   sem->sem_name = name;
-
+  assert(sem);
 }
 
 
 void sem_up(struct sem_s *sem){
   irq_disable();
+  assert(sem);
   sem->sem_cpt++;
   if(sem->sem_cpt <= 0){
     printf("UNFREEZE : %s\n", sem->sem_name);
@@ -228,6 +228,7 @@ void sem_up(struct sem_s *sem){
 
 void sem_down(struct sem_s *sem){
   irq_disable();
+  assert(sem);
   sem->sem_cpt--;
   if(sem->sem_cpt < 0){
     printf("FREEZE : %s\n", sem->sem_name);
