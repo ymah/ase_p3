@@ -89,6 +89,7 @@ int create_ctx(int size, func_t f, struct parameters * args,char * name);
 void start_current_ctx();
 void del_ctx(struct ctx_s *ctx);
 void print_ctx(struct ctx_s *ctx);
+void print_pile_ctx();
 void start();
 void switch_to_ctx(struct ctx_s *new_ctx);
 void yield();

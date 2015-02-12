@@ -85,8 +85,8 @@ boot(){
     IRQVECTOR[i] = &emptyIT;
 
   init_context();
-  _out(TIMER_PARAM, 0xC0);
-  _out(TIMER_ALARM, (0xFFFFFFFF - 1000));
+  _out(TIMER_PARAM,128+64+32+8); /* reset + alarm on + 8 tick / alarm */
+  _out(TIMER_ALARM,0xFFFFFFFE);  /* alarm at next tick (at 0xFFFFFFFF) */
 
   IRQVECTOR[TIMER_IRQ] = &yield;
   IRQVECTOR[HDA_IRQ] = &reset_ctx_disque;

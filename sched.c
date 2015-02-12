@@ -24,7 +24,16 @@ void print_ctx(struct ctx_s *ctx){
   printf("%s\n",ctx->ctx_name);
 }
 
+void print_pile_ctx(){
+  struct ctx_s *ctx;
 
+  ctx = ring_head;
+
+  while(ctx->ctx_next != ring_head){
+    printf("%p ",ctx);
+    print_ctx(ctx);
+  }
+}
 int create_ctx(int size, func_t f, struct parameters * args,char *name){
 
   struct ctx_s* new_ctx = (struct ctx_s*) malloc(sizeof(struct ctx_s));
@@ -96,9 +105,10 @@ void switch_to_ctx(struct ctx_s *new_ctx){
   assert(new_ctx->ctx_magic == CTX_MAGIC);
   if(!current_ctx){
     return_ctx = (struct ctx_s*)malloc(sizeof(struct ctx_s));
+    return_ctx->ctx_magic = CTX_MAGIC;
     __asm__ ("mov %%rsp, %0\n" :"=r"(return_ctx->ctx_rsp));
     __asm__ ("mov %%rbp, %0\n" :"=r"(return_ctx->ctx_rbp));
-    return;
+
   }
   else{
     __asm__ ("mov %%rsp, %0\n" :"=r"(current_ctx->ctx_rsp));
@@ -120,12 +130,16 @@ void switch_to_ctx(struct ctx_s *new_ctx){
 void yield(){
 
   int status;
-  status = _in(TIMER_ALARM);
 
-  printf(BOLDCYAN"\nENTERING yield() with timer at %d\n"RESET,status);
-  _out(TIMER_ALARM, (0xFFFFFFFF - 1000));
+  _out(TIMER_ALARM,0xFFFFFFFE);  /* alarm at next tick (at 0xFFFFFFFF) */
+
+  printf("\nLA PILE CTX\n");
+
+  printf("\n----------------\n");
+
+
+
   irq_disable();
-
   if(!current_ctx){
     assert(ring_head);
     printf("\n yield : I- switching to ");
@@ -143,10 +157,6 @@ void yield(){
         break;
       ctx = ctx->ctx_next;
 
-    }
-    if(ctx == ctx->ctx_next){
-      del_ctx(ctx);
-      switch_to_ctx(return_ctx);
     }
     current_ctx = ctx;
     printf("\n yield : II- switching to ");
