@@ -45,7 +45,7 @@ void format_sector(unsigned int cylinder, unsigned int sector, unsigned int nsec
   _out(HDA_DATAREGS + 4, (value >> 8) & 0xFF);
   _out(HDA_DATAREGS + 5, value & 0xFF);
   _out(HDA_CMDREG, CMD_FORMAT);
-  my_sleep();
+  wait_disque();
 }
 
 /* lit n nombre de secteur */
@@ -74,7 +74,7 @@ void read_sector_n(struct parameters *args) {
   _out(HDA_DATAREGS, 1 & 0xFF);
   _out(HDA_CMDREG, CMD_READ);
 
-  my_sleep();
+  wait_disque();
   for(i = 0; i < n; i++)
     MASTERBUFFER[i] = buffer[i];
   sem_up(semaphore_disque);
@@ -103,7 +103,6 @@ void write_sector_n(struct parameters *args) {
   unsigned int sector;
   const char *buffer;
   int n;
-  sem_down(semaphore_disque);
   cylinder=args->cylinder;
   sector = args->sector;
   buffer = args->buffer;
@@ -118,6 +117,7 @@ void write_sector_n(struct parameters *args) {
   for(i = 0; i < SECTOR_SIZE; i++)
     MASTERBUFFER[i] = 0;
   create_ctx(16384,&go_to_sector,args,"go to sector context");
+  sem_down(semaphore_disque);
 
   _out(HDA_DATAREGS, 0);
   _out(HDA_DATAREGS+1, 1 & 0xFF);
@@ -126,7 +126,7 @@ void write_sector_n(struct parameters *args) {
 
   _out(HDA_CMDREG, CMD_WRITE);
 
-  my_sleep();
+  wait_disque();
   sem_up(semaphore_disque);
 
 }
@@ -158,7 +158,7 @@ static void go_to_sector(struct parameters *args) {
     exit(EXIT_FAILURE);
   }
 
-
+  sem_down(semaphore_disque);
   /* printf("go to : %d %d %d %d\n",(args->cylinder >> 8) & 0xFF,args->cylinder & 0xFF, (args->sector >> 8) & 0xFF,args->sector & 0xFF); */
   _out(HDA_DATAREGS, (args->cylinder >> 8) & 0xFF);
   _out(HDA_DATAREGS + 1, args->cylinder & 0xFF);
@@ -166,8 +166,8 @@ static void go_to_sector(struct parameters *args) {
   _out(HDA_DATAREGS + 3, args->sector & 0xFF);
   _out(HDA_CMDREG, CMD_SEEK);
 
-  my_sleep();
-
+  wait_disque();
+  sem_up(semaphore_disque);
 }
 
 void check_hda() {

@@ -21,18 +21,24 @@ int init_ctx(struct ctx_s *ctx, int stack_size, func_t f,struct parameters * arg
 
 
 void print_ctx(struct ctx_s *ctx){
-  printf("%s\n",ctx->ctx_name);
+  printf("> ");
+  printf("%s with state %d\n",ctx->ctx_name,ctx->ctx_state);
 }
 
 void print_pile_ctx(){
+  irq_disable();
+  int i;
   struct ctx_s *ctx;
-
   ctx = ring_head;
-
-  while(ctx->ctx_next != ring_head){
-    printf("%p ",ctx);
+  printf(BLUE"\n=============================\n"RESET);
+  printf(BOLDBLUE"%d ctx\n"RESET,nb_ctx);
+  printf("\n>><<\n");
+  for(i=0;i<nb_ctx;i++){
     print_ctx(ctx);
+    ctx = ctx->ctx_next;
   }
+  printf(BLUE"\n=============================\n"RESET);
+  irq_enable();
 }
 int create_ctx(int size, func_t f, struct parameters * args,char *name){
 
@@ -44,19 +50,14 @@ int create_ctx(int size, func_t f, struct parameters * args,char *name){
   assert(new_ctx);
 
   if(init_ctx(new_ctx, size, f, args ,name)){ /* error */ return 1; }
-
   if(!ring_head){
 
     ring_head = new_ctx;
-    ring_head->ctx_next = new_ctx;
+    ring_head->ctx_next = ring_head;
   }
   else {
-    /* new_ctx->ctx_next = ring_head->ctx_next; */
-    /* ring_head->ctx_next = new_ctx; */
+    new_ctx->ctx_next = ring_head->ctx_next;
     ring_head->ctx_next = new_ctx;
-    new_ctx->ctx_next = ring_head;
-    ring_head = new_ctx;
-
   }
 
   irq_enable();
@@ -67,10 +68,10 @@ int create_ctx(int size, func_t f, struct parameters * args,char *name){
 
 void start_current_ctx(){
 
+
   current_ctx->ctx_state = CTX_EXQ;
   (*current_ctx->ctx_f)(current_ctx->ctx_arg);
   current_ctx->ctx_state = CTX_END;
-  del_ctx(current_ctx);
   yield();
 }
 
@@ -78,8 +79,8 @@ void del_ctx(struct ctx_s *ctx){
   irq_disable();
   printf(RED"Deleting : "RESET);
   print_ctx(ctx);
-  if(!ctx)
-    return ;
+  if(ctx == NULL)
+    return;
   if(ctx->ctx_next == ctx){
     free(ctx);
     ctx = NULL;
@@ -108,7 +109,6 @@ void switch_to_ctx(struct ctx_s *new_ctx){
     return_ctx->ctx_magic = CTX_MAGIC;
     __asm__ ("mov %%rsp, %0\n" :"=r"(return_ctx->ctx_rsp));
     __asm__ ("mov %%rbp, %0\n" :"=r"(return_ctx->ctx_rbp));
-
   }
   else{
     __asm__ ("mov %%rsp, %0\n" :"=r"(current_ctx->ctx_rsp));
@@ -116,8 +116,10 @@ void switch_to_ctx(struct ctx_s *new_ctx){
   }
 
   current_ctx = new_ctx;
+
   __asm__ ("mov %0, %%rsp\n" ::"r"(current_ctx->ctx_rsp));
   __asm__ ("mov %0, %%rbp\n" ::"r"(current_ctx->ctx_rbp));
+
   irq_enable();
   if(current_ctx->ctx_state == CTX_RDY){
     start_current_ctx();
@@ -129,40 +131,18 @@ void switch_to_ctx(struct ctx_s *new_ctx){
 
 void yield(){
 
-  int status;
-
-  _out(TIMER_ALARM,0xFFFFFFFE);  /* alarm at next tick (at 0xFFFFFFFF) */
-
-  printf("\nLA PILE CTX\n");
-
-  printf("\n----------------\n");
-
-
 
   irq_disable();
+  printf("\n !!!!!!!! CPT : %d!!!!!!!\n",cpt++);
+
+  printf(GREEN"\n======================\n"RESET);
+  printf(GREEN"\nENTERING YIELD\n"RESET);
+  _out(TIMER_ALARM,TIMER);  /* alarm at next tick (at 0xFFFFFFFF) */
+  print_pile_ctx();
   if(!current_ctx){
-    assert(ring_head);
-    printf("\n yield : I- switching to ");
-    print_ctx(ring_head);
-    switch_to_ctx(ring_head);
+    current_ctx = ring_head;
   }
-  else{
-
-    struct ctx_s *ctx;
-    ctx = current_ctx;
-    while(ctx->ctx_state == CTX_STP || ctx->ctx_state == CTX_END){
-      if(ctx == ring_head)
-        break;
-      if(ctx == ctx->ctx_next)
-        break;
-      ctx = ctx->ctx_next;
-
-    }
-    current_ctx = ctx;
-    printf("\n yield : II- switching to ");
-    print_ctx(ctx);
-    switch_to_ctx(ctx);
-  }
+  switch_to_ctx(current_ctx);
 }
 
 
@@ -170,8 +150,9 @@ void yield(){
 void reset_ctx_disque(){
   irq_disable();
   printf(BOLDMAGENTA"\nENTERING reset_ctx_disque()\n"RESET);  
-  printf("\nReset_ctx_disque : Le ctx qui a reçu l'IRQ :  ");
+  printf("\tReset_ctx_disque : Le ctx qui a reçu l'IRQ :  ");
   print_ctx(ctx_disque);
+  assert(ctx_disque->ctx_next);
   ctx_disque->ctx_next = current_ctx;
   current_ctx = ctx_disque;
   current_ctx->ctx_state = CTX_EXQ;
@@ -179,14 +160,14 @@ void reset_ctx_disque(){
 }
 
 
-void my_sleep(){
+void wait_disque(){
   /* assert(ctx_disque == (struct ctx_s *) 0); */
-
+  irq_disable();
   printf(BOLDYELLOW"\nENTERING my_sleep()\n"RESET);
   printf("\nMy_sleep : le ctx demandeur :  ");
   print_ctx(current_ctx);
   ctx_disque = current_ctx;
-  current_ctx->ctx_state = CTX_STP;
+  current_ctx->ctx_state = CTX_DISQUE;
   current_ctx = current_ctx->ctx_next;
 
   yield();
@@ -195,18 +176,16 @@ void my_sleep(){
 
 
 void bloquer(struct sem_s *sem){
-  irq_disable();
+
   current_ctx->ctx_state = CTX_STP;
   current_ctx->ctx_sem_next = sem->sem_head;
   sem->sem_head = current_ctx;
-  irq_enable();
   yield();
 }
 
 
 void debloquer(struct sem_s *sem){
   struct ctx_s* ctx;
-  irq_disable();
   ctx = sem->sem_head;
   ctx->ctx_state = CTX_EXQ;
   sem->sem_head=ctx->ctx_sem_next;
@@ -245,60 +224,5 @@ void sem_down(struct sem_s *sem){
     bloquer(sem);
   }
   irq_enable();
-}
-
-
-void produce_object(object_t* object){
-  object->value=1;
-}
-
-
-void use_object(object_t object){
-  object.value = 0;
-}
-
-
-void push_object(object_t object){
-  next_index++;
-  if(next_index>N){
-    printf("FAIL!\n");
-  }
-}
-
-
-void pull_object(object_t* object){
-  next_index--;
-  if(next_index<0){
-    printf("FAIL!\n");
-  }
-}
-
-
-
-void producer(){
-  object_t object;
-  while(1){
-    printf("produce: %d/%d\n", next_index, vide.sem_cpt);
-    produce_object(&object);
-    sem_down(&vide);
-    sem_down(&mutex);
-    push_object(object);
-    sem_up(&mutex);
-    sem_up(&plein);
-  }
-}
-
-
-void consumer(){
-  object_t object;
-  while(1){
-    printf("consume: %d/%d\n", next_index, plein.sem_cpt);
-    sem_down(&plein);
-    sem_down(&mutex);
-    pull_object(&object);
-    sem_up(&mutex);
-    sem_up(&vide);
-    use_object(object);
-  }
 }
 

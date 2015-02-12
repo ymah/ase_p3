@@ -19,13 +19,13 @@ TP Semaphore, réalisé par Yaker Mahieddine
 
 #define LOOP 1000000000
 #define N 100
-
-int next_index;
+#define TIMER 0xFFFFFFFA
+int next_index,cpt;
 
 
 typedef void (func_t) (void *);
 /* typedef void (irq_handler_func_t)(void); */
-typedef enum {CTX_RDY, CTX_EXQ, CTX_STP, CTX_END} state_e;
+typedef enum {CTX_RDY, CTX_EXQ, CTX_STP,CTX_DISQUE, CTX_END} state_e;
 
 
 
@@ -67,7 +67,6 @@ struct sem_s {
 struct ctx_s* current_ctx;
 struct ctx_s* ring_head;
 struct ctx_s* return_ctx;
-struct sem_s mutex, vide, plein;
 struct ctx_s* ctx_disque;
 unsigned int nb_ctx;
 
@@ -93,7 +92,7 @@ void print_pile_ctx();
 void start();
 void switch_to_ctx(struct ctx_s *new_ctx);
 void yield();
-void my_sleep();
+void wait_disque();
 void reset_ctx_disque();
 void sem_init(struct sem_s *sem, unsigned int val, char* name);
 void sem_up(struct sem_s *sem);

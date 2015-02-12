@@ -44,7 +44,7 @@ void init_vol(int vol) {
 
 
 int load_super(unsigned int vol) {
-  
+
   current_vol = vol;
   printf(BOLDGREEN"[load super]"RESET GREEN" read bloc n\n");
   read_bloc_n(current_vol, SUPER, (unsigned char*)&current_super, sizeof(current_super));
@@ -138,4 +138,4 @@ void freeBlocs(unsigned int blocs[], unsigned int taille) {
 int get_n_free_bloc() {
   return current_super.super_n_free;
 }
- 
+
