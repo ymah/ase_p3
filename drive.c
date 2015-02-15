@@ -68,9 +68,19 @@ void read_sector_n(struct parameters *args) {
     exit(EXIT_FAILURE);
   }
 
-  create_ctx(16385,&go_to_sector,args,"go to sector context");
 
+  create_ctx(16385,&go_to_sector,args,"go to sector context");
   sem_down(semaphore_disque);
+
+
+  /* _out(HDA_DATAREGS, (cylinder >> 8) & 0xFF); */
+  /* _out(HDA_DATAREGS + 1, cylinder & 0xFF); */
+  /* _out(HDA_DATAREGS + 2, (sector >> 8) & 0xFF); */
+  /* _out(HDA_DATAREGS + 3, sector & 0xFF); */
+  /* _out(HDA_CMDREG, CMD_SEEK); */
+
+  /* wait_disque(); */
+
   _out(HDA_DATAREGS, 1 & 0xFF);
   _out(HDA_CMDREG, CMD_READ);
 
@@ -116,8 +126,18 @@ void write_sector_n(struct parameters *args) {
 
   for(i = 0; i < SECTOR_SIZE; i++)
     MASTERBUFFER[i] = 0;
+
   create_ctx(16384,&go_to_sector,args,"go to sector context");
+
   sem_down(semaphore_disque);
+
+  /* _out(HDA_DATAREGS, (cylinder >> 8) & 0xFF); */
+  /* _out(HDA_DATAREGS + 1, cylinder & 0xFF); */
+  /* _out(HDA_DATAREGS + 2, (sector >> 8) & 0xFF); */
+  /* _out(HDA_DATAREGS + 3, sector & 0xFF); */
+  /* _out(HDA_CMDREG, CMD_SEEK); */
+
+  /* wait_disque(); */
 
   _out(HDA_DATAREGS, 0);
   _out(HDA_DATAREGS+1, 1 & 0xFF);
@@ -148,6 +168,7 @@ void write_sector(unsigned int cylinder, unsigned int sector, const unsigned cha
 
 
 static void go_to_sector(struct parameters *args) {
+
   /* on verifie que les valeures passees en parametres sont les bonnes */
   if(args->cylinder > MAX_CYLINDER) {
     printf("Appel de la fonction go_to_sector avec un cylinder superieur a MAX_CYLINDER\n");
@@ -167,6 +188,7 @@ static void go_to_sector(struct parameters *args) {
   _out(HDA_CMDREG, CMD_SEEK);
 
   wait_disque();
+
   sem_up(semaphore_disque);
 }
 

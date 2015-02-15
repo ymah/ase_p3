@@ -19,13 +19,20 @@ TP Semaphore, réalisé par Yaker Mahieddine
 
 #define LOOP 1000000000
 #define N 100
-#define TIMER 0xFFFFFFFA
+#define TIMER 0xFFFFFFEE
 int next_index,cpt;
 
 
 typedef void (func_t) (void *);
 /* typedef void (irq_handler_func_t)(void); */
-typedef enum {CTX_RDY, CTX_EXQ, CTX_STP,CTX_DISQUE, CTX_END} state_e;
+
+
+typedef enum {  CTX_RDY,/*0 : context pret en attente*/
+                CTX_EXQ,/*1 : context en cours d'execution*/
+                CTX_STP,/*2 : context stoppé*/
+                CTX_DISQUE,/*3 : context en attente du disque */
+                CTX_END/*4 : context terminé */
+} state_e;
 
 
 
@@ -61,7 +68,9 @@ struct parameters_m{
 struct sem_s {
   char* sem_name;
   int sem_cpt;
+  int init_cpt;
   struct ctx_s* sem_head;
+  struct ctx_s* sem_last;
 };
 
 struct ctx_s* current_ctx;

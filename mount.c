@@ -107,9 +107,11 @@ mount()
 
   /* Load MBR and current volume */
   printf(BOLDGREEN"[mount sequence]"RESET GREEN" load mbr\n");
+
   load_mbr();
-  printf(BOLDGREEN"[mount sequence]"RESET GREEN" load current volume\n");
   load_current_volume();
+
+  printf(BOLDGREEN"[mount sequence]"RESET GREEN" load current volume\n");
 
 }
 

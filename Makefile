@@ -6,18 +6,18 @@
 # ROOTDIR=/home/rkouere/fac/S2/ASE++/libhardware-linux-x86-r128
 #mahieddine
 ROOTDIR=/home/mahieddine/Documents/cours/M1S2/ASEa/libhardware
-
+#ROOTDIR=/home/mahieddine/Documents/cours/M1S2/ASEa/lib32
 
 CC	= gcc
 CFLAGS	= -Wall -ansi -pedantic
 #nico
-CFLAGS  += -g #-m32
-CFLAGS  += -std=iso9899:1999
-CFLAGS += -pthread
-#mah
 # CFLAGS  += -g #-m32
 # CFLAGS  += -std=iso9899:1999
-# CFLAGS += -lpthread
+# CFLAGS += -pthread
+#mah
+CFLAGS  += -g #-m32
+CFLAGS  += -std=iso9899:1999
+CFLAGS += -lpthread
 
 LIBDIR  = -L$(ROOTDIR)/lib
 INCDIR  = -I$(ROOTDIR)/include

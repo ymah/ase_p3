@@ -10,6 +10,6 @@ void irq_enable(){
 }
 void irq_disable(){
 
-  _mask(16);
+  _mask(15);
   enable_irq = 0;
 }
