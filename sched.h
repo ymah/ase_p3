@@ -19,7 +19,7 @@ TP Semaphore, réalisé par Yaker Mahieddine
 
 #define LOOP 1000000000
 #define N 100
-#define TIMER 0xFFFFFFEE
+#define TIMER 0xFFFFFFAE
 int next_index,cpt;
 
 

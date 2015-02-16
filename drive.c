@@ -180,7 +180,7 @@ static void go_to_sector(struct parameters *args) {
   }
 
   sem_down(semaphore_disque);
-  /* printf("go to : %d %d %d %d\n",(args->cylinder >> 8) & 0xFF,args->cylinder & 0xFF, (args->sector >> 8) & 0xFF,args->sector & 0xFF); */
+  printf("go to : %d %d %d %d\n",(args->cylinder >> 8) & 0xFF,args->cylinder & 0xFF, (args->sector >> 8) & 0xFF,args->sector & 0xFF);
   _out(HDA_DATAREGS, (args->cylinder >> 8) & 0xFF);
   _out(HDA_DATAREGS + 1, args->cylinder & 0xFF);
   _out(HDA_DATAREGS + 2, (args->sector >> 8) & 0xFF);
