@@ -112,15 +112,15 @@ void start(){
 void switch_to_ctx(struct ctx_s *new_ctx){
   assert(new_ctx != NULL);
   assert(new_ctx->ctx_magic == CTX_MAGIC);
-  if(!current_ctx){
-    return_ctx = (struct ctx_s*)calloc(1,sizeof(struct ctx_s));
+  if(!ring_head & !current_ctx){
+    return_ctx = (struct ctx_s*)malloc(sizeof(struct ctx_s));
     return_ctx->ctx_magic = CTX_MAGIC;
     __asm__ ("mov %%rsp, %0\n" :"=r"(return_ctx->ctx_rsp));
     __asm__ ("mov %%rbp, %0\n" :"=r"(return_ctx->ctx_rbp));
+  }else{
+    __asm__ ("mov %%rsp, %0\n" :"=r"(current_ctx->ctx_rsp));
+    __asm__ ("mov %%rbp, %0\n" :"=r"(current_ctx->ctx_rbp));
   }
-  __asm__ ("mov %%rsp, %0\n" :"=r"(current_ctx->ctx_rsp));
-  __asm__ ("mov %%rbp, %0\n" :"=r"(current_ctx->ctx_rbp));
-
 
   current_ctx = new_ctx;
 
@@ -135,7 +135,6 @@ void switch_to_ctx(struct ctx_s *new_ctx){
     irq_disable();
     current_ctx->ctx_state = CTX_END;
     yield();
-
   }
 
 }
@@ -166,16 +165,14 @@ void yield(){
   }else{
     struct ctx_s * ctx = current_ctx->ctx_next;
 
-
     while(1){
 
-      if(ctx->ctx_state == CTX_RDY){
+      if(ctx->ctx_state == CTX_RDY)
         break;
-      }
-      if(ctx->ctx_state == CTX_EXQ){
+      if(ctx->ctx_state == CTX_EXQ)
         break;
-      }
       if(ctx->ctx_state == CTX_DISQUE || ctx->ctx_state == CTX_STP){
+        ctx = ctx->ctx_next;
         continue;
       }
       if(ctx->ctx_state == CTX_END){
@@ -246,12 +243,14 @@ void sem_up(struct sem_s *sem){
     sem->sem_head->ctx_next = ring_head;
     current_ctx = sem->sem_head;
     sem->sem_head = ctx_tmp;
+    yield();
   }
   if(DEBUG){
     printf(BOLDMAGENTA"\n[SEMAPHORE DISQUE RENDU PAR] %s avec comme nouvel etat : %d\n"RESET,ctx_disque->ctx_name,sem->sem_cpt);
   }
 
   irq_enable();
+
 
 }
 

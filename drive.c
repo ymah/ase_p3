@@ -70,6 +70,9 @@ void read_sector_n(struct parameters *args) {
 
 
   create_ctx(16385,&go_to_sector,args,"go to sector context");
+
+
+
   sem_down(semaphore_disque);
 
 
